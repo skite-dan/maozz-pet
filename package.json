@@ -1,11 +1,15 @@
 {
   "name": "maozz-pet",
-  "version": "1.0.0",
-  "description": "毛茸茸星球 - 00后养宠社区后端服务",
-  "main": "src/server.js",
+  "version": "2.0.0",
+  "description": "毛茸茸星球 - 00后养宠社区（前后端分离架构）",
+  "main": "front/server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start:front": "node front/server.js",
+    "start:admin": "node admin/server.js",
+    "start": "npm-run-all --parallel start:front start:admin",
+    "dev:front": "nodemon front/server.js",
+    "dev:admin": "nodemon admin/server.js",
+    "dev": "npm-run-all --parallel dev:front dev:admin",
     "init-db": "mysql -u pet -p\"pet147258!\" pet < sql/init.sql"
   },
   "dependencies": {
@@ -26,6 +30,7 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "npm-run-all": "^4.1.5"
   }
 }

@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof pageTitle !== 'undefined' ? pageTitle + ' - ' : '' %>毛茸茸星球 - 后台管理</title>
+  <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
+  <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
   <style>
     /* ========== Reset & Base ========== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -284,8 +286,8 @@
     /* ========== Stats Cards ========== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
       margin-bottom: 24px;
     }
     .stat-card {
@@ -788,6 +790,115 @@
       to { opacity: 0; transform: translateX(40px); }
     }
 
+    /* ========== Modal (for banners/settings) ========== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal .modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      animation: fadeIn 0.2s ease;
+    }
+    .modal .modal-content {
+      position: relative;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: scaleIn 0.2s ease;
+      z-index: 9999;
+    }
+    .modal .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .modal .modal-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+    .modal .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #94a3b8;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    .modal .modal-close:hover {
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .modal .modal-body {
+      padding: 20px;
+    }
+    .modal .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px 16px;
+      border-top: 1px solid #f1f5f9;
+    }
+    /* Form elements in modal */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #334155;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus {
+      border-color: #ff6b35;
+      box-shadow: 0 0 0 3px rgba(255,107,53,0.1);
+    }
+    .form-error {
+      display: none;
+      color: #ef4444;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
     /* ========== Confirm Dialog ========== */
     .modal-overlay {
       position: fixed;
@@ -884,6 +995,9 @@
     }
 
     /* ========== Responsive ========== */
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
     @media (max-width: 1024px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
       .grid-2 { grid-template-columns: 1fr; }
@@ -1017,11 +1131,11 @@
     /* ========== Admin Auth Check (server-side via cookie, JS only for UI) ========== */
     (function() {
       // 管理员信息由服务端通过cookie认证后注入
-      const adminUserStr = '<%- typeof adminUser !== "undefined" ? JSON.stringify(adminUser) : "{}" %>';
+      var adminUserStr = '<%- typeof adminUser !== "undefined" ? JSON.stringify(adminUser) : "{}" %>';
       try {
-        const user = JSON.parse(adminUserStr);
-        const nameEl = document.getElementById('adminName');
-        const topNameEl = document.getElementById('topbarAdminName');
+        var user = JSON.parse(adminUserStr);
+        var nameEl = document.getElementById('adminName');
+        var topNameEl = document.getElementById('topbarAdminName');
         if (nameEl && user.username) nameEl.textContent = user.username;
         if (topNameEl && user.username) topNameEl.textContent = user.username;
       } catch(e) {}
@@ -1029,8 +1143,8 @@
 
     /* ========== Sidebar Toggle (Mobile) ========== */
     function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sidebarOverlay');
       sidebar.classList.toggle('open');
       overlay.classList.toggle('show');
     }
@@ -1083,10 +1197,10 @@
 
     /* ========== Toast Notification ========== */
     function showToast(message, type = 'info', duration = 3000) {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
+      var container = document.getElementById('toastContainer');
+      var toast = document.createElement('div');
       toast.className = 'toast ' + type;
-      const icons = { success: '\u2714', error: '\u2718', warning: '\u26A0', info: '\u2139' };
+      var icons = { success: '\u2714', error: '\u2718', warning: '\u26A0', info: '\u2139' };
       toast.innerHTML = '<span>' + (icons[type] || '') + '</span><span>' + message + '</span>';
       container.appendChild(toast);
       setTimeout(() => {
@@ -1097,7 +1211,7 @@
 
     /* ========== Confirm Dialog ========== */
     function showConfirm(title, message, onConfirm) {
-      const overlay = document.createElement('div');
+      var overlay = document.createElement('div');
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
         <div class="modal-box">
@@ -1131,16 +1245,16 @@
     /* ========== Date Format ========== */
     function formatDate(dateStr) {
       if (!dateStr) return '-';
-      const d = new Date(dateStr);
-      const pad = n => String(n).padStart(2, '0');
+      var d = new Date(dateStr);
+      var pad = n => String(n).padStart(2, '0');
       return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
              pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
     }
 
     function formatDateShort(dateStr) {
       if (!dateStr) return '-';
-      const d = new Date(dateStr);
-      const pad = n => String(n).padStart(2, '0');
+      var d = new Date(dateStr);
+      var pad = n => String(n).padStart(2, '0');
       return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
     }
 
@@ -1153,12 +1267,12 @@
 
     /* ========== Table Sort ========== */
     function initTableSort(tableEl, loadDataFn) {
-      const headers = tableEl.querySelectorAll('thead th[data-sort]');
+      var headers = tableEl.querySelectorAll('thead th[data-sort]');
       headers.forEach(th => {
         th.addEventListener('click', () => {
-          const field = th.dataset.sort;
-          const currentDir = th.dataset.dir || '';
-          const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+          var field = th.dataset.sort;
+          var currentDir = th.dataset.dir || '';
+          var newDir = currentDir === 'asc' ? 'desc' : 'asc';
           // Reset all headers
           headers.forEach(h => {
             h.dataset.dir = '';
@@ -1173,22 +1287,22 @@
 
     /* ========== Pagination Helper ========== */
     function renderPagination(containerId, currentPage, totalPages, onPageChange) {
-      const container = document.getElementById(containerId);
+      var container = document.getElementById(containerId);
       if (!container || totalPages <= 1) {
         if (container) container.innerHTML = '';
         return;
       }
-      let html = '<div class="pagination">';
+      var html = '<div class="pagination">';
       html += '<div class="page-info">第 ' + currentPage + ' / ' + totalPages + ' 页</div>';
       html += '<div class="page-btns">';
       html += '<button class="page-btn" ' + (currentPage <= 1 ? 'disabled' : '') + ' onclick="window._paginationGo(' + (currentPage - 1) + ')">&laquo;</button>';
-      const start = Math.max(1, currentPage - 2);
-      const end = Math.min(totalPages, currentPage + 2);
+      var start = Math.max(1, currentPage - 2);
+      var end = Math.min(totalPages, currentPage + 2);
       if (start > 1) {
         html += '<button class="page-btn" onclick="window._paginationGo(1)">1</button>';
         if (start > 2) html += '<span style="padding:0 4px;color:#94a3b8;">...</span>';
       }
-      for (let i = start; i <= end; i++) {
+      for (var i = start; i <= end; i++) {
         html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="window._paginationGo(' + i + ')">' + i + '</button>';
       }
       if (end < totalPages) {
