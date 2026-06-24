@@ -899,6 +899,58 @@
       margin-top: 6px;
     }
 
+    /* ========== Upload Area (与前台保持一致) ========== */
+    .upload-area {
+      border: 2px dashed #e2e8f0;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 14px;
+    }
+    .upload-area:hover {
+      border-color: #ff6b35;
+      background: rgba(255,107,53,0.03);
+    }
+    .upload-area .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-area p { font-size: 0.88rem; color: #94a3b8; }
+    .upload-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .upload-preview .preview-item {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .upload-preview .preview-item img,
+    .upload-preview .preview-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .upload-preview .preview-item .remove-btn {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
     /* ========== Confirm Dialog ========== */
     .modal-overlay {
       position: fixed;

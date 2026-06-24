@@ -187,6 +187,28 @@ router.put('/posts/:id', async (req, res) => {
   }
 });
 
+// 更新帖子媒体
+router.put('/posts/:id/media', async (req, res) => {
+  try {
+    const { media } = req.body;
+    if (!Array.isArray(media)) return error(res, 400, 'media 必须是数组');
+
+    // 删除旧媒体
+    await query('DELETE FROM post_media WHERE post_id = ?', [req.params.id]);
+    // 插入新媒体
+    for (let i = 0; i < media.length; i++) {
+      const m = media[i];
+      await query(
+        'INSERT INTO post_media (post_id, media_type, media_url, thumbnail_url, file_size, mime_type, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [req.params.id, m.type || m.media_type, m.url || m.media_url, m.thumbnail || m.thumbnail_url || null, m.size || m.file_size || null, m.mime || m.mime_type || null, i]
+      );
+    }
+    success(res, null, '媒体更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
 // 评论管理
 router.get('/comments', async (req, res) => {
   try {

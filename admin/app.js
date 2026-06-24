@@ -39,6 +39,10 @@ app.use('/uploads', express.static(path.join(__dirname, '..', 'src', 'public', '
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
 
+// 上传路由
+const uploadRoutes = require('../front/routes/upload');
+app.use('/api/upload', uploadRoutes);
+
 // 路由
 const routes = require('./routes');
 app.use('/', routes);
