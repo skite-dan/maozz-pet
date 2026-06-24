@@ -1,0 +1,40 @@
+<%
+  var body = '';
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">关于我们</span>';
+  body += '</div>';
+
+  body += '<div class="static-page">';
+  body += '  <h2>关于毛茸茸星球</h2>';
+  body += '  <p>毛茸茸星球（Maozz Pet）是一个专为铲屎官打造的宠物社区平台。我们致力于为宠物爱好者提供一个温暖、友善的交流空间，让每一位铲屎官都能在这里找到志同道合的朋友，分享养宠经验，交流萌宠日常。</p>';
+
+  body += '  <h2>我们的使命</h2>';
+  body += '  <p>让每一位宠物主人都能获得科学、实用的养宠知识，让每一只毛孩子都能得到最好的关爱。我们相信，了解越多，爱得越深。</p>';
+
+  body += '  <h2>我们的愿景</h2>';
+  body += '  <p>成为中国最受宠物爱好者信赖的社区平台，构建一个充满爱与责任的宠物生态圈。</p>';
+
+  body += '  <h2>平台特色</h2>';
+  body += '  <ul>';
+  body += '    <li><strong>宠物论坛</strong> - 自由交流养宠心得，提问求助，分享日常</li>';
+  body += '    <li><strong>养宠百科</strong> - 专业、系统的宠物养护知识库</li>';
+  body += '    <li><strong>萌宠故事</strong> - 记录你和毛孩子的温馨瞬间</li>';
+  body += '    <li><strong>养宠工具</strong> - 实用的宠物年龄计算、喂食量计算等工具</li>';
+  body += '    <li><strong>宠物档案</strong> - 为你的毛孩子建立专属档案</li>';
+  body += '  </ul>';
+
+  body += '  <h2>联系我们</h2>';
+  body += '  <p>如果你有任何问题、建议或合作意向，欢迎通过以下方式联系我们：</p>';
+  body += '  <ul>';
+  body += '    <li>邮箱：contact@maozz.com</li>';
+  body += '    <li><a href="/contact">在线留言</a></li>';
+  body += '    <li><a href="/msgboard">留言板</a></li>';
+  body += '  </ul>';
+
+  body += '  <h2>加入我们</h2>';
+  body += '  <p>毛茸茸星球正在不断成长中，我们欢迎所有热爱宠物的朋友加入我们的社区。<a href="/register">立即注册</a>，开启你的养宠之旅！</p>';
+  body += '</div>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-about', body: body }) %>

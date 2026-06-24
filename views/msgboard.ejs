@@ -1,0 +1,133 @@
+<%
+  var body = '';
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">留言板</span>';
+  body += '</div>';
+
+  body += '<div class="page-layout">';
+  body += '  <div class="content-area">';
+
+  // Message form
+  body += '    <div class="card" style="padding:24px;margin-bottom:24px;">';
+  body += '      <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">✍️</span> 发表留言</h3>';
+  body += '      <div class="form-group">';
+  body += '        <label class="form-label">昵称（游客可选）</label>';
+  body += '        <input type="text" class="form-input" id="msgNickname" placeholder="游客请输入昵称，登录用户自动显示">';
+  body += '      </div>';
+  body += '      <div class="form-group">';
+  body += '        <label class="form-label">留言内容 <span style="color:var(--accent);">*</span></label>';
+  body += '        <textarea class="form-input" id="msgContent" placeholder="说点什么吧..." rows="4"></textarea>';
+  body += '      </div>';
+  body += '      <div style="display:flex;justify-content:flex-end;">';
+  body += '        <button class="btn btn-primary btn-sm" onclick="submitMessage()">发表留言</button>';
+  body += '      </div>';
+  body += '    </div>';
+
+  // Message list
+  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">💬</span> 留言列表</h3>';
+  body += '    <div id="messageList">';
+  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '    </div>';
+  body += '    <div id="msgPagination"></div>';
+
+  body += '  </div>';
+
+  // Sidebar
+  body += '  <aside class="sidebar">';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">📋 留言板规则</h3>';
+  body += '      <ol style="font-size:0.88rem;color:var(--muted);line-height:2;padding-left:18px;list-style:decimal;">';
+  body += '        <li>请文明留言，友善交流</li>';
+  body += '        <li>禁止发布广告、垃圾信息</li>';
+  body += '        <li>禁止人身攻击和恶意言论</li>';
+  body += '        <li>违规留言将被删除</li>';
+  body += '        <li>登录用户留言将显示用户名</li>';
+  body += '      </ol>';
+  body += '    </div>';
+
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">📊 本周热帖</h3>';
+  body += '      <div class="hot-list" id="weeklyHotSidebar">';
+  body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '      </div>';
+  body += '    </div>';
+  body += '  </aside>';
+  body += '</div>';
+%>
+
+<%
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += '(function() {';
+  pageScript += '  let msgPage = 1;';
+  pageScript += '  const msgLimit = 20;';
+
+  pageScript += '  // Load messages';
+  pageScript += '  async function loadMessages(page) {';
+  pageScript += '    msgPage = page;';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/messages?page=" + page + "&limit=" + msgLimit);';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        const list = document.getElementById("messageList");';
+  pageScript += '        if (data.data.messages.length > 0) {';
+  pageScript += '          list.innerHTML = data.data.messages.map(m => \'<div class="message-item">\' +';
+  pageScript += '            \'<div class="msg-header">\' +';
+  pageScript += '              \'<span class="msg-author">\' + (m.username || m.nickname || "游客") + \'</span>\' +';
+  pageScript += '              \'<span class="msg-time">\' + formatDate(m.created_at) + \'</span>\' +';
+  pageScript += '            \'</div>\' +';
+  pageScript += '            \'<div class="msg-content">\' + escapeHtml(m.content) + \'</div>\' +';
+  pageScript += '          \'</div>\').join("");';
+  pageScript += '          document.getElementById("msgPagination").innerHTML = renderPagination(data.data.total, page, msgLimit, "loadMessages");';
+  pageScript += '        } else {';
+  pageScript += '          list.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无留言，来说两句吧~</p></div>\';';
+  pageScript += '        }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+
+  pageScript += '  // Submit message';
+  pageScript += '  window.submitMessage = async function() {';
+  pageScript += '    const content = document.getElementById("msgContent").value.trim();';
+  pageScript += '    if (!content) { showToast("请输入留言内容", "error"); return; }';
+  pageScript += '    const nickname = document.getElementById("msgNickname").value.trim();';
+  pageScript += '    try {';
+  pageScript += '      const res = await authFetch("/api/messages", {';
+  pageScript += '        method: "POST",';
+  pageScript += '        headers: { "Content-Type": "application/json" },';
+  pageScript += '        body: JSON.stringify({ content, nickname })';
+  pageScript += '      });';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 201 || data.code === 200) {';
+  pageScript += '        showToast("留言成功！", "success");';
+  pageScript += '        document.getElementById("msgContent").value = "";';
+  pageScript += '        loadMessages(1);';
+  pageScript += '      } else {';
+  pageScript += '        showToast(data.message || "留言失败", "error");';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { showToast("网络错误", "error"); }';
+  pageScript += '  };';
+
+  pageScript += '  window.loadMessages = loadMessages;';
+
+  pageScript += '  // Load weekly hot';
+  pageScript += '  async function loadWeeklyHot() {';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/posts?sort=hot&limit=5");';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
+  pageScript += '        document.getElementById("weeklyHotSidebar").innerHTML = data.data.posts.slice(0, 5).map((p, i) =>';
+  pageScript += '          \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + p.id + \'">\' + escapeHtml(p.title) + \'</a></span></div>\'';
+  pageScript += '        ).join("");';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+
+  pageScript += '  loadMessages(1);';
+  pageScript += '  loadWeeklyHot();';
+  pageScript += '})();';
+  pageScript += '</script>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-msgboard', body: body, pageScript: pageScript }) %>

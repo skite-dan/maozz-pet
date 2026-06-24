@@ -1,0 +1,79 @@
+<%
+  var body = '';
+
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">萌宠故事</span>';
+  body += '</div>';
+
+  body += '<div class="page-layout">';
+  body += '  <div class="content-area">';
+  body += '    <h2 class="section-title"><span class="icon">💝</span> 萌宠故事</h2>';
+  body += '    <div class="article-grid" id="storiesArea">';
+  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '    </div>';
+  body += '    <div id="storiesPagination"></div>';
+  body += '  </div>';
+
+  body += '  <aside class="sidebar">';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">📂 故事分类</h3>';
+  body += '      <div style="display:flex;flex-direction:column;gap:8px;">';
+  var storyCategories = [
+    { icon: '🏠', name: '领养故事', keyword: '领养' },
+    { icon: '💕', name: '宠物情缘', keyword: '宠物情缘' },
+    { icon: '😂', name: '搞笑日常', keyword: '搞笑' },
+    { icon: '😭', name: '感人瞬间', keyword: '感人' },
+    { icon: '🎂', name: '宠物生日', keyword: '生日' },
+    { icon: '✈️', name: '宠物旅行', keyword: '旅行' },
+    { icon: '📸', name: '萌宠摄影', keyword: '摄影' },
+    { icon: '🏆', name: '才艺展示', keyword: '才艺' }
+  ];
+  for (var i = 0; i < storyCategories.length; i++) {
+    body += '        <a href="/search?keyword=' + encodeURIComponent(storyCategories[i].keyword) + '&type=story" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:0.9rem;color:var(--ink);transition:all 0.25s;" onmouseover="this.style.background=\'rgba(255,133,161,0.06)\'" onmouseout="this.style.background=\'transparent\'">';
+    body += '          <span>' + storyCategories[i].icon + '</span> ' + storyCategories[i].name;
+    body += '        </a>';
+  }
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">🏷️ 热门标签</h3>';
+  body += '      <div class="tag-cloud">';
+  var storyTags = ['猫咪日常', '狗狗趣事', '萌宠成长', '宠物日记', '流浪动物', '宠物救助', '宠物婚礼', '宠物时装', '宠物派对', '宠物才艺'];
+  for (var t = 0; t < storyTags.length; t++) {
+    body += '        <a href="/search?keyword=' + encodeURIComponent(storyTags[t]) + '&type=story" class="tag tag-pink">' + storyTags[t] + '</a>';
+  }
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">✍️ 投稿须知</h3>';
+  body += '      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">欢迎分享你和毛孩子的温馨故事！点击右下角的发帖按钮，选择"萌宠故事"类型即可投稿。</p>';
+  body += '    </div>';
+  body += '  </aside>';
+  body += '</div>';
+
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += '(function() {';
+  pageScript += '  let page = 1;';
+  pageScript += '  const limit = 12;';
+  pageScript += '  async function loadStories(p) {';
+  pageScript += '    page = p;';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/posts?type=story&page=" + p + "&limit=" + limit);';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        const area = document.getElementById("storiesArea");';
+  pageScript += '        if (data.data.posts.length > 0) {';
+  pageScript += '          area.innerHTML = data.data.posts.map(p => renderArticleCard(p)).join("");';
+  pageScript += '          document.getElementById("storiesPagination").innerHTML = renderPagination(data.data.total, page, limit, "loadStories");';
+  pageScript += '        } else { area.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无故事内容</p></div>\'; }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+  pageScript += '  window.loadStories = loadStories;';
+  pageScript += '  loadStories(1);';
+  pageScript += '})();';
+  pageScript += '</script>';
+%>
+<%- include('layout', { title: title, bodyClass: 'page-stories', body: body, pageScript: pageScript }) %>

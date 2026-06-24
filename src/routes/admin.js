@@ -1,0 +1,286 @@
+const express = require('express');
+const { query, queryOne } = require('../models');
+const { admin } = require('../middlewares/admin');
+const { success, error } = require('../utils/response');
+
+const router = express.Router();
+
+// 所有admin路由需要管理员权限
+router.use(admin);
+
+// 数据看板统计
+router.get('/dashboard', async (req, res) => {
+  try {
+    const stats = await queryOne('SELECT * FROM v_dashboard_stats');
+
+    // 最近7天注册趋势
+    const trend = await query(
+      `SELECT DATE(created_at) as date, COUNT(*) as count FROM users
+       WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND role = 'user'
+       GROUP BY DATE(created_at) ORDER BY date`
+    );
+
+    // 最近帖子
+    const recentPosts = await query(
+      `SELECT p.id, p.title, p.post_type, p.view_count, p.like_count, p.status, p.created_at, u.username
+       FROM posts p JOIN users u ON p.user_id = u.id
+       ORDER BY p.created_at DESC LIMIT 10`
+    );
+
+    // 最近评论
+    const recentComments = await query(
+      `SELECT c.id, c.content, c.status, c.created_at, u.username, p.title as post_title
+       FROM comments c JOIN users u ON c.user_id = u.id
+       JOIN posts p ON c.post_id = p.id
+       ORDER BY c.created_at DESC LIMIT 10`
+    );
+
+    // 访问量统计
+    const { getVisitStats } = require('../services/visitTracker');
+    const visitStats = await getVisitStats(30);
+
+    success(res, { stats, trend, recentPosts, recentComments, visitStats });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 用户管理
+router.get('/users', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, role, keyword } = req.query;
+    const offset = (page - 1) * limit;
+    let where = '1=1', params = [];
+    if (status !== undefined && status !== '') { where += ' AND u.status = ?'; params.push(status); }
+    if (role) { where += ' AND u.role = ?'; params.push(role); }
+    if (keyword) { where += ' AND (u.username LIKE ? OR u.email LIKE ?)'; params.push(`%${keyword}%`, `%${keyword}%`); }
+
+    const users = await query(
+      `SELECT u.id, u.username, u.email, u.avatar, u.role, u.status, u.last_login_at, u.created_at,
+       (SELECT COUNT(*) FROM posts WHERE user_id = u.id) as post_count
+       FROM users u WHERE ${where} ORDER BY u.created_at DESC LIMIT ? OFFSET ?`,
+      [...params, parseInt(limit), parseInt(offset)]
+    );
+    const totalResult = await queryOne(`SELECT COUNT(*) as total FROM users u WHERE ${where}`, params);
+    success(res, { users, total: totalResult?.total || 0 });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 禁用/启用用户
+router.put('/users/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (status === undefined) return error(res, 400, '请指定状态');
+    await query('UPDATE users SET status = ? WHERE id = ?', [status, req.params.id]);
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'update_user_status', 'user', req.params.id, req.ip]);
+    success(res, null, '用户状态更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 帖子管理
+router.get('/posts', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, type, keyword } = req.query;
+    const offset = (page - 1) * limit;
+    let where = '1=1', params = [];
+    if (status !== undefined && status !== '') { where += ' AND p.status = ?'; params.push(status); }
+    if (type) { where += ' AND p.post_type = ?'; params.push(type); }
+    if (keyword) { where += ' AND (p.title LIKE ? OR p.content LIKE ?)'; params.push(`%${keyword}%`, `%${keyword}%`); }
+
+    const posts = await query(
+      `SELECT p.*, u.username FROM posts p JOIN users u ON p.user_id = u.id
+       WHERE ${where} ORDER BY p.created_at DESC LIMIT ? OFFSET ?`,
+      [...params, parseInt(limit), parseInt(offset)]
+    );
+    const totalResult = await queryOne(`SELECT COUNT(*) as total FROM posts p WHERE ${where}`, params);
+    success(res, { posts, total: totalResult?.total || 0 });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 更新帖子状态
+router.put('/posts/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    await query('UPDATE posts SET status = ? WHERE id = ?', [status, req.params.id]);
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'update_post_status', 'post', req.params.id, req.ip]);
+    success(res, null, '帖子状态更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 删除帖子
+router.delete('/posts/:id', async (req, res) => {
+  try {
+    await query('UPDATE posts SET status = "deleted" WHERE id = ?', [req.params.id]);
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'delete_post', 'post', req.params.id, req.ip]);
+    success(res, null, '帖子已删除');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 评论管理
+router.get('/comments', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, keyword } = req.query;
+    const offset = (page - 1) * limit;
+    let where = '1=1', params = [];
+    if (status !== undefined && status !== '') { where += ' AND c.status = ?'; params.push(status); }
+    if (keyword) { where += ' AND c.content LIKE ?'; params.push(`%${keyword}%`); }
+
+    const comments = await query(
+      `SELECT c.*, u.username, p.title as post_title FROM comments c
+       JOIN users u ON c.user_id = u.id
+       JOIN posts p ON c.post_id = p.id
+       WHERE ${where} ORDER BY c.created_at DESC LIMIT ? OFFSET ?`,
+      [...params, parseInt(limit), parseInt(offset)]
+    );
+    const totalResult = await queryOne(`SELECT COUNT(*) as total FROM comments c WHERE ${where}`, params);
+    success(res, { comments, total: totalResult?.total || 0 });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 隐藏/删除评论
+router.put('/comments/:id/status', async (req, res) => {
+  try {
+    await query('UPDATE comments SET status = ? WHERE id = ?', [req.body.status, req.params.id]);
+    success(res, null, '评论状态更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 留言管理
+router.get('/messages', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, keyword } = req.query;
+    const offset = (page - 1) * limit;
+    let where = '1=1', params = [];
+    if (status !== undefined && status !== '') { where += ' AND m.status = ?'; params.push(status); }
+    if (keyword) { where += ' AND m.content LIKE ?'; params.push(`%${keyword}%`); }
+
+    const messages = await query(
+      `SELECT m.*, u.username FROM messages m LEFT JOIN users u ON m.user_id = u.id
+       WHERE ${where} ORDER BY m.created_at DESC LIMIT ? OFFSET ?`,
+      [...params, parseInt(limit), parseInt(offset)]
+    );
+    const totalResult = await queryOne(`SELECT COUNT(*) as total FROM messages m WHERE ${where}`, params);
+    success(res, { messages, total: totalResult?.total || 0 });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 隐藏/删除留言
+router.put('/messages/:id/status', async (req, res) => {
+  try {
+    await query('UPDATE messages SET status = ? WHERE id = ?', [req.body.status, req.params.id]);
+    success(res, null, '留言状态更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 系统配置
+router.get('/settings', async (req, res) => {
+  try {
+    const settings = await query('SELECT * FROM site_settings ORDER BY setting_group, setting_key');
+    success(res, settings);
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+router.put('/settings', async (req, res) => {
+  try {
+    const { settings } = req.body;
+    for (const [key, value] of Object.entries(settings)) {
+      await query('UPDATE site_settings SET setting_value = ? WHERE setting_key = ?', [value, key]);
+    }
+    success(res, null, '配置更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 操作日志
+router.get('/logs', async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const offset = (page - 1) * limit;
+    const logs = await query(
+      `SELECT l.*, a.username as admin_name FROM admin_logs l JOIN users a ON l.admin_id = a.id
+       ORDER BY l.created_at DESC LIMIT ? OFFSET ?`,
+      [parseInt(limit), parseInt(offset)]
+    );
+    success(res, logs);
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 轮播图管理 - 列表
+router.get('/banners', async (req, res) => {
+  try {
+    const banners = await query(
+      'SELECT * FROM banners ORDER BY sort_order ASC, id ASC'
+    );
+    success(res, banners);
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 轮播图管理 - 创建
+router.post('/banners', async (req, res) => {
+  try {
+    const { title, image_url, link_url, sort_order } = req.body;
+    if (!image_url) return error(res, 400, '图片地址不能为空');
+
+    const result = await query(
+      'INSERT INTO banners (title, image_url, link_url, sort_order) VALUES (?, ?, ?, ?)',
+      [title || '', image_url, link_url || '', sort_order || 0]
+    );
+    success(res, { id: result.insertId }, '轮播图添加成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 轮播图管理 - 更新
+router.put('/banners/:id', async (req, res) => {
+  try {
+    const { title, image_url, link_url, sort_order, status } = req.body;
+    await query(
+      'UPDATE banners SET title = ?, image_url = ?, link_url = ?, sort_order = ?, status = ? WHERE id = ?',
+      [title || '', image_url, link_url || '', sort_order || 0, status !== undefined ? status : 1, req.params.id]
+    );
+    success(res, null, '轮播图更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 轮播图管理 - 删除
+router.delete('/banners/:id', async (req, res) => {
+  try {
+    await query('DELETE FROM banners WHERE id = ?', [req.params.id]);
+    success(res, null, '轮播图删除成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+module.exports = router;

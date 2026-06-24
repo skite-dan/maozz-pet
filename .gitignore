@@ -1,0 +1,8 @@
+node_modules/
+.env
+src/public/uploads/images/*
+src/public/uploads/videos/*
+!src/public/uploads/images/.gitkeep
+!src/public/uploads/videos/.gitkeep
+logs/
+*.log

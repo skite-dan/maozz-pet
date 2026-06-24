@@ -1,0 +1,57 @@
+<%
+  var body = '';
+  body += '<div class="auth-page">';
+  body += '  <div class="auth-card">';
+  body += '    <h2>🐾 登录</h2>';
+  body += '    <p class="auth-subtitle">欢迎回到毛茸茸星球</p>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">用户名 / 邮箱</label>';
+  body += '      <input type="text" class="form-input" id="loginPageUsername" placeholder="请输入用户名或邮箱">';
+  body += '    </div>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">密码</label>';
+  body += '      <input type="password" class="form-input" id="loginPagePassword" placeholder="请输入密码">';
+  body += '    </div>';
+  body += '    <p id="loginPageError" style="color:#e74c3c;font-size:0.85rem;display:none;margin-bottom:10px;"></p>';
+  body += '    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="handlePageLogin()">登 录</button>';
+  body += '    <div class="auth-footer">';
+  body += '      还没有账号？<a href="/register">去注册</a>';
+  body += '    </div>';
+  body += '  </div>';
+  body += '</div>';
+%>
+
+<%
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += 'async function handlePageLogin() {';
+  pageScript += '  const username = document.getElementById("loginPageUsername").value.trim();';
+  pageScript += '  const password = document.getElementById("loginPagePassword").value;';
+  pageScript += '  const errorEl = document.getElementById("loginPageError");';
+  pageScript += '  if (!username || !password) { errorEl.textContent = "请输入用户名和密码"; errorEl.style.display = "block"; return; }';
+  pageScript += '  try {';
+  pageScript += '    const res = await fetch("/api/auth/login", {';
+  pageScript += '      method: "POST",';
+  pageScript += '      headers: { "Content-Type": "application/json" },';
+  pageScript += '      body: JSON.stringify({ username, password })';
+  pageScript += '    });';
+  pageScript += '    const data = await res.json();';
+  pageScript += '    if (data.code === 200) {';
+  pageScript += '      localStorage.setItem("token", data.data.token);';
+  pageScript += '      localStorage.setItem("user", JSON.stringify(data.data.user));';
+  pageScript += '      showToast("登录成功，欢迎回来！", "success");';
+  pageScript += '      setTimeout(() => { window.location.href = "/"; }, 800);';
+  pageScript += '    } else {';
+  pageScript += '      errorEl.textContent = data.message || "登录失败";';
+  pageScript += '      errorEl.style.display = "block";';
+  pageScript += '    }';
+  pageScript += '  } catch(e) { errorEl.textContent = "网络错误，请稍后重试"; errorEl.style.display = "block"; }';
+  pageScript += '}';
+  pageScript += '// Enter key to submit';
+  pageScript += 'document.getElementById("loginPagePassword").addEventListener("keydown", function(e) {';
+  pageScript += '  if (e.key === "Enter") handlePageLogin();';
+  pageScript += '});';
+  pageScript += '</script>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-login', body: body, pageScript: pageScript }) %>

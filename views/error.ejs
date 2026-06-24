@@ -1,0 +1,26 @@
+<%
+var body = '';
+body += '<div class="error-page">';
+body += '  <div class="error-icon">' + (errorCode === 404 ? '🔍' : '⚠️') + '</div>';
+body += '  <h1 class="error-code">' + errorCode + '</h1>';
+body += '  <p class="error-message">' + errorMessage + '</p>';
+body += (errorDetail ? '  <p class="error-detail">' + errorDetail + '</p>' : '');
+body += '  <div class="error-actions">';
+body += '    <a href="/" class="btn-primary">返回首页</a>';
+body += '    <a href="javascript:history.back()" class="btn-secondary">返回上页</a>';
+body += '  </div>';
+body += '</div>';
+body += '<style>';
+body += '.error-page{text-align:center;padding:100px 20px;max-width:600px;margin:0 auto}';
+body += '.error-icon{font-size:80px;margin-bottom:20px}';
+body += '.error-code{font-size:120px;font-weight:900;color:var(--accent);margin:0;line-height:1}';
+body += '.error-message{font-size:20px;color:var(--muted);margin:20px 0}';
+body += '.error-detail{font-size:14px;color:#999;margin:10px 0;font-family:monospace}';
+body += '.error-actions{margin-top:40px;display:flex;gap:16px;justify-content:center}';
+body += '.btn-primary{display:inline-block;padding:12px 32px;background:var(--accent);color:#fff;border-radius:25px;text-decoration:none;font-weight:600;transition:all .2s}';
+body += '.btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(255,107,53,.3)}';
+body += '.btn-secondary{display:inline-block;padding:12px 32px;border:2px solid var(--rule);color:var(--ink);border-radius:25px;text-decoration:none;font-weight:600;transition:all .2s}';
+body += '.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}';
+body += '</style>';
+%>
+<%- include('layout', { title: title, body: body }) %>

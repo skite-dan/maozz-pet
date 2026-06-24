@@ -1,0 +1,255 @@
+<%
+  var body = '';
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">养宠工具箱</span>';
+  body += '</div>';
+
+  body += '<div class="page-layout">';
+  body += '  <div class="content-area">';
+  body += '    <h2 class="section-title"><span class="icon">🔧</span> 养宠工具箱</h2>';
+
+  // Tool 1: Pet Age Calculator
+  body += '    <div class="tool-card" id="pet-age" style="margin-bottom:20px;">';
+  body += '      <div class="tool-icon">🎂</div>';
+  body += '      <h3>宠物年龄计算器</h3>';
+  body += '      <p>将宠物年龄换算为人类年龄，了解毛孩子处于哪个生命阶段</p>';
+  body += '      <div style="margin-top:16px;">';
+  body += '        <div class="form-row">';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">宠物类型</label>';
+  body += '            <select class="form-input" id="petAgeType">';
+  body += '              <option value="cat">猫咪</option>';
+  body += '              <option value="dog-small">小型犬</option>';
+  body += '              <option value="dog-medium">中型犬</option>';
+  body += '              <option value="dog-large">大型犬</option>';
+  body += '            </select>';
+  body += '          </div>';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">宠物年龄（岁）</label>';
+  body += '            <input type="number" class="form-input" id="petAgeValue" placeholder="例如：3" min="0" max="30" step="0.5">';
+  body += '          </div>';
+  body += '        </div>';
+  body += '        <button class="btn btn-primary btn-sm" onclick="calcPetAge()">开始计算</button>';
+  body += '        <div class="calc-result" id="petAgeResult">';
+  body += '          <h4>计算结果</h4>';
+  body += '          <div class="result-value" id="petAgeHuman"></div>';
+  body += '          <div class="result-desc" id="petAgeStage"></div>';
+  body += '        </div>';
+  body += '      </div>';
+  body += '    </div>';
+
+  // Tool 2: Feed Calculator
+  body += '    <div class="tool-card" id="feed" style="margin-bottom:20px;">';
+  body += '      <div class="tool-icon">🍖</div>';
+  body += '      <h3>每日喂食量计算器</h3>';
+  body += '      <p>根据宠物体重和活动量，计算每日建议喂食量</p>';
+  body += '      <div style="margin-top:16px;">';
+  body += '        <div class="form-row">';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">宠物类型</label>';
+  body += '            <select class="form-input" id="feedType">';
+  body += '              <option value="cat">猫咪</option>';
+  body += '              <option value="dog">狗狗</option>';
+  body += '            </select>';
+  body += '          </div>';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">体重（kg）</label>';
+  body += '            <input type="number" class="form-input" id="feedWeight" placeholder="例如：5" min="0.1" max="100" step="0.1">';
+  body += '          </div>';
+  body += '        </div>';
+  body += '        <div class="form-group">';
+  body += '          <label class="form-label">活动量</label>';
+  body += '          <select class="form-input" id="feedActivity">';
+  body += '            <option value="low">低（室内猫/老年犬）</option>';
+  body += '            <option value="normal" selected>中等（正常活动）</option>';
+  body += '            <option value="high">高（活泼好动/工作犬）</option>';
+  body += '          </select>';
+  body += '        </div>';
+  body += '        <button class="btn btn-primary btn-sm" onclick="calcFeed()">开始计算</button>';
+  body += '        <div class="calc-result" id="feedResult">';
+  body += '          <h4>计算结果</h4>';
+  body += '          <div class="result-value" id="feedAmount"></div>';
+  body += '          <div class="result-desc" id="feedDesc"></div>';
+  body += '        </div>';
+  body += '      </div>';
+  body += '    </div>';
+
+  // Tool 3: BMI Calculator
+  body += '    <div class="tool-card" id="bmi" style="margin-bottom:20px;">';
+  body += '      <div class="tool-icon">⚖️</div>';
+  body += '      <h3>宠物BMI健康评估</h3>';
+  body += '      <p>通过体长和体重评估宠物是否处于健康体重范围</p>';
+  body += '      <div style="margin-top:16px;">';
+  body += '        <div class="form-row">';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">宠物类型</label>';
+  body += '            <select class="form-input" id="bmiType">';
+  body += '              <option value="cat">猫咪</option>';
+  body += '              <option value="dog-small">小型犬（<10kg）</option>';
+  body += '              <option value="dog-medium">中型犬（10-25kg）</option>';
+  body += '              <option value="dog-large">大型犬（>25kg）</option>';
+  body += '            </select>';
+  body += '          </div>';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">体重（kg）</label>';
+  body += '            <input type="number" class="form-input" id="bmiWeight" placeholder="例如：4.5" min="0.1" max="100" step="0.1">';
+  body += '          </div>';
+  body += '        </div>';
+  body += '        <div class="form-group">';
+  body += '          <label class="form-label">体长（cm，从肩到尾根）</label>';
+  body += '          <input type="number" class="form-input" id="bmiLength" placeholder="例如：40" min="5" max="150" step="0.5">';
+  body += '        </div>';
+  body += '        <button class="btn btn-primary btn-sm" onclick="calcBMI()">开始评估</button>';
+  body += '        <div class="calc-result" id="bmiResult">';
+  body += '          <h4>评估结果</h4>';
+  body += '          <div class="result-value" id="bmiValue"></div>';
+  body += '          <div class="result-desc" id="bmiDesc"></div>';
+  body += '        </div>';
+  body += '      </div>';
+  body += '    </div>';
+
+  // Tool 4: Deworming Reminder
+  body += '    <div class="tool-card" id="deworm" style="margin-bottom:20px;">';
+  body += '      <div class="tool-icon">💊</div>';
+  body += '      <h3>驱虫提醒计算器</h3>';
+  body += '      <p>根据上次驱虫日期，计算下次驱虫时间</p>';
+  body += '      <div style="margin-top:16px;">';
+  body += '        <div class="form-row">';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">上次驱虫日期</label>';
+  body += '            <input type="date" class="form-input" id="dewormDate">';
+  body += '          </div>';
+  body += '          <div class="form-group">';
+  body += '            <label class="form-label">驱虫类型</label>';
+  body += '            <select class="form-input" id="dewormType">';
+  body += '              <option value="internal">体内驱虫（每3个月）</option>';
+  body += '              <option value="external">体外驱虫（每月）</option>';
+  body += '              <option value="both">内外同驱（每月）</option>';
+  body += '            </select>';
+  body += '          </div>';
+  body += '        </div>';
+  body += '        <button class="btn btn-primary btn-sm" onclick="calcDeworm()">计算下次时间</button>';
+  body += '        <div class="calc-result" id="dewormResult">';
+  body += '          <h4>提醒结果</h4>';
+  body += '          <div class="result-value" id="dewormNext"></div>';
+  body += '          <div class="result-desc" id="dewormDesc"></div>';
+  body += '        </div>';
+  body += '      </div>';
+  body += '    </div>';
+
+  body += '  </div>';
+
+  // Sidebar
+  body += '  <aside class="sidebar">';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">💡 工具说明</h3>';
+  body += '      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">本工具箱提供的计算结果仅供参考，不能替代专业兽医的诊断和建议。如宠物有健康问题，请及时就医。</p>';
+  body += '    </div>';
+
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">🔍 热门搜索</h3>';
+  body += '      <div class="tag-cloud">';
+  body += '        <a href="/search?keyword=猫粮推荐" class="tag">猫粮推荐</a>';
+  body += '        <a href="/search?keyword=狗粮推荐" class="tag">狗粮推荐</a>';
+  body += '        <a href="/search?keyword=驱虫药" class="tag">驱虫药</a>';
+  body += '        <a href="/search?keyword=宠物疫苗" class="tag">宠物疫苗</a>';
+  body += '        <a href="/search?keyword=宠物绝育" class="tag">宠物绝育</a>';
+  body += '        <a href="/search?keyword=猫咪肥胖" class="tag">猫咪肥胖</a>';
+  body += '      </div>';
+  body += '    </div>';
+
+  body += '    <div class="ad-banner">广告位</div>';
+  body += '  </aside>';
+  body += '</div>';
+%>
+
+<%
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += '// Pet Age Calculator (via API)';
+  pageScript += 'async function calcPetAge() {';
+  pageScript += '  const type = document.getElementById("petAgeType").value;';
+  pageScript += '  const age = document.getElementById("petAgeValue").value;';
+  pageScript += '  if (!age || age < 0) { showToast("请输入有效年龄", "error"); return; }';
+  pageScript += '  try {';
+  pageScript += '    const res = await fetch("/api/tools/pet-age?type=" + type + "&age=" + age);';
+  pageScript += '    const data = await res.json();';
+  pageScript += '    if (data.code === 200) {';
+  pageScript += '      document.getElementById("petAgeHuman").textContent = data.data.humanAge + " 岁人类年龄";';
+  pageScript += '      document.getElementById("petAgeStage").textContent = "生命阶段：处于" + data.data.stage + "期";';
+  pageScript += '      document.getElementById("petAgeResult").classList.add("show");';
+  pageScript += '    }';
+  pageScript += '  } catch(e) { showToast("计算失败", "error"); }';
+  pageScript += '}';
+
+  pageScript += '// Feed Calculator (frontend)';
+  pageScript += 'function calcFeed() {';
+  pageScript += '  const type = document.getElementById("feedType").value;';
+  pageScript += '  const weight = parseFloat(document.getElementById("feedWeight").value);';
+  pageScript += '  const activity = document.getElementById("feedActivity").value;';
+  pageScript += '  if (!weight || weight <= 0) { showToast("请输入有效体重", "error"); return; }';
+  pageScript += '  let factor = type === "cat" ? 50 : 80;';
+  pageScript += '  if (activity === "low") factor *= 0.8;';
+  pageScript += '  if (activity === "high") factor *= 1.2;';
+  pageScript += '  const dailyAmount = (weight * factor / 1000).toFixed(1);';
+  pageScript += '  document.getElementById("feedAmount").textContent = "每日建议喂食量：" + dailyAmount + " kg";';
+  pageScript += '  document.getElementById("feedDesc").textContent = "建议分2-3次喂食，保持新鲜饮水。具体喂食量请参考所购宠粮包装建议。";';
+  pageScript += '  document.getElementById("feedResult").classList.add("show");';
+  pageScript += '}';
+
+  pageScript += '// BMI Calculator (frontend)';
+  pageScript += 'function calcBMI() {';
+  pageScript += '  const type = document.getElementById("bmiType").value;';
+  pageScript += '  const weight = parseFloat(document.getElementById("bmiWeight").value);';
+  pageScript += '  const length = parseFloat(document.getElementById("bmiLength").value);';
+  pageScript += '  if (!weight || !length || weight <= 0 || length <= 0) { showToast("请输入有效数据", "error"); return; }';
+  pageScript += '  const bmi = (weight / Math.pow(length / 100, 2)).toFixed(1);';
+  pageScript += '  let status = "", desc = "";';
+  pageScript += '  if (type === "cat") {';
+  pageScript += '    if (bmi < 20) { status = "偏瘦"; desc = "建议适当增加营养摄入，可咨询兽医制定增重计划。"; }';
+  pageScript += '    else if (bmi <= 30) { status = "正常"; desc = "体重在健康范围内，继续保持良好的饮食习惯！"; }';
+  pageScript += '    else { status = "偏胖"; desc = "建议控制饮食、增加运动量，必要时咨询兽医。"; }';
+  pageScript += '  } else {';
+  pageScript += '    if (bmi < 25) { status = "偏瘦"; desc = "建议适当增加营养摄入。"; }';
+  pageScript += '    else if (bmi <= 35) { status = "正常"; desc = "体重在健康范围内，继续保持！"; }';
+  pageScript += '    else { status = "偏胖"; desc = "建议控制饮食、增加运动量。"; }';
+  pageScript += '  }';
+  pageScript += '  document.getElementById("bmiValue").textContent = "BMI: " + bmi + "（" + status + "）";';
+  pageScript += '  document.getElementById("bmiDesc").textContent = desc;';
+  pageScript += '  document.getElementById("bmiResult").classList.add("show");';
+  pageScript += '}';
+
+  pageScript += '// Deworming Reminder (frontend)';
+  pageScript += 'function calcDeworm() {';
+  pageScript += '  const dateStr = document.getElementById("dewormDate").value;';
+  pageScript += '  const type = document.getElementById("dewormType").value;';
+  pageScript += '  if (!dateStr) { showToast("请选择上次驱虫日期", "error"); return; }';
+  pageScript += '  const lastDate = new Date(dateStr);';
+  pageScript += '  let intervalMonths = 1;';
+  pageScript += '  if (type === "internal") intervalMonths = 3;';
+  pageScript += '  const nextDate = new Date(lastDate);';
+  pageScript += '  nextDate.setMonth(nextDate.getMonth() + intervalMonths);';
+  pageScript += '  const today = new Date();';
+  pageScript += '  const diffDays = Math.ceil((nextDate - today) / (1000 * 60 * 60 * 24));';
+  pageScript += '  const nextStr = nextDate.getFullYear() + "-" + String(nextDate.getMonth()+1).padStart(2,"0") + "-" + String(nextDate.getDate()).padStart(2,"0");';
+  pageScript += '  document.getElementById("dewormNext").textContent = "下次驱虫日期：" + nextStr;';
+  pageScript += '  if (diffDays > 0) {';
+  pageScript += '    document.getElementById("dewormDesc").textContent = "距离下次驱虫还有 " + diffDays + " 天，请提前准备好驱虫药。";';
+  pageScript += '  } else if (diffDays === 0) {';
+  pageScript += '    document.getElementById("dewormDesc").textContent = "今天就是驱虫日！请及时为宠物驱虫。";';
+  pageScript += '  } else {';
+  pageScript += '    document.getElementById("dewormDesc").textContent = "驱虫时间已过期 " + Math.abs(diffDays) + " 天，请尽快驱虫！";';
+  pageScript += '  }';
+  pageScript += '  document.getElementById("dewormResult").classList.add("show");';
+  pageScript += '}';
+
+  // Handle hash navigation
+  pageScript += 'if (window.location.hash) {';
+  pageScript += '  const target = document.querySelector(window.location.hash);';
+  pageScript += '  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });';
+  pageScript += '}';
+  pageScript += '</script>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-tools', body: body, pageScript: pageScript }) %>

@@ -1,0 +1,79 @@
+<%
+  var body = '';
+
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">养宠百科</span>';
+  body += '</div>';
+
+  body += '<div class="page-layout">';
+  body += '  <div class="content-area">';
+  body += '    <h2 class="section-title"><span class="icon">📖</span> 养宠百科</h2>';
+  body += '    <div class="article-grid" id="knowledgeArea">';
+  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '    </div>';
+  body += '    <div id="knowledgePagination"></div>';
+  body += '  </div>';
+
+  body += '  <aside class="sidebar">';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">📂 科普分类</h3>';
+  body += '      <div style="display:flex;flex-direction:column;gap:8px;">';
+  var categories = [
+    { icon: '🐱', name: '猫咪百科', keyword: '猫咪' },
+    { icon: '🐶', name: '狗狗百科', keyword: '狗狗' },
+    { icon: '🐰', name: '小宠百科', keyword: '兔子' },
+    { icon: '🐟', name: '水族百科', keyword: '鱼类' },
+    { icon: '🏥', name: '宠物健康', keyword: '宠物健康' },
+    { icon: '🍖', name: '喂养指南', keyword: '喂养' },
+    { icon: '🧹', name: '日常护理', keyword: '护理' },
+    { icon: '💊', name: '疾病防治', keyword: '疾病' }
+  ];
+  for (var i = 0; i < categories.length; i++) {
+    body += '        <a href="/search?keyword=' + encodeURIComponent(categories[i].keyword) + '&type=knowledge" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;font-size:0.9rem;color:var(--ink);transition:all 0.25s;" onmouseover="this.style.background=\'rgba(255,107,53,0.06)\'" onmouseout="this.style.background=\'transparent\'">';
+    body += '          <span>' + categories[i].icon + '</span> ' + categories[i].name;
+    body += '        </a>';
+  }
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">🏷️ 热门标签</h3>';
+  body += '      <div class="tag-cloud">';
+  var knowledgeTags = ['新手养猫', '猫粮测评', '狗狗训练', '宠物疫苗', '绝育指南', '驱虫攻略', '洗澡技巧', '猫咪发情', '狗粮推荐', '宠物口粮'];
+  for (var t = 0; t < knowledgeTags.length; t++) {
+    body += '        <a href="/search?keyword=' + encodeURIComponent(knowledgeTags[t]) + '&type=knowledge" class="tag">' + knowledgeTags[t] + '</a>';
+  }
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">💡 小贴士</h3>';
+  body += '      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">养宠百科汇集了丰富的宠物养护知识，从新手入门到进阶技巧，帮助你成为更合格的铲屎官。</p>';
+  body += '    </div>';
+  body += '  </aside>';
+  body += '</div>';
+
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += '(function() {';
+  pageScript += '  let page = 1;';
+  pageScript += '  const limit = 12;';
+  pageScript += '  async function loadKnowledge(p) {';
+  pageScript += '    page = p;';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/posts?type=knowledge&page=" + p + "&limit=" + limit);';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        const area = document.getElementById("knowledgeArea");';
+  pageScript += '        if (data.data.posts.length > 0) {';
+  pageScript += '          area.innerHTML = data.data.posts.map(p => renderArticleCard(p)).join("");';
+  pageScript += '          document.getElementById("knowledgePagination").innerHTML = renderPagination(data.data.total, page, limit, "loadKnowledge");';
+  pageScript += '        } else { area.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无百科内容</p></div>\'; }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+  pageScript += '  window.loadKnowledge = loadKnowledge;';
+  pageScript += '  loadKnowledge(1);';
+  pageScript += '})();';
+  pageScript += '</script>';
+%>
+<%- include('layout', { title: title, bodyClass: 'page-knowledge', body: body, pageScript: pageScript }) %>

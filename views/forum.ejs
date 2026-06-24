@@ -1,0 +1,119 @@
+<%
+  var body = '';
+
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">宠物论坛</span>';
+  body += '</div>';
+
+  body += '<div class="page-layout">';
+  body += '  <div class="content-area">';
+
+  body += '  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">';
+  body += '    <h2 class="section-title" style="margin-bottom:0;"><span class="icon">💬</span> 宠物论坛</h2>';
+  body += '    <button class="btn btn-primary btn-sm" onclick="requireLoginThen(function(){ openModal(\'postModal\'); })">✏️ 发布新帖</button>';
+  body += '  </div>';
+
+  body += '  <section id="userPostsSection" style="display:none;margin-bottom:30px;">';
+  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">👤</span> 我的帖子</h3>';
+  body += '    <div class="post-list" id="userPostsArea"></div>';
+  body += '  </section>';
+
+  body += '  <section>';
+  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">🔥</span> 热门讨论</h3>';
+  body += '    <div class="post-list" id="hotPostsArea">';
+  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '    </div>';
+  body += '    <div id="hotPagination"></div>';
+  body += '  </section>';
+
+  body += '  <section style="margin-top:30px;">';
+  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">💰</span> 宠物经济话题</h3>';
+  body += '    <div class="post-list" id="economyPostsArea">';
+  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '    </div>';
+  body += '  </section>';
+
+  body += '  </div>';
+
+  body += '  <aside class="sidebar">';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">🏷️ 热门标签</h3>';
+  body += '      <div class="tag-cloud">';
+  var forumTags = ['养宠求助', '日常分享', '好物推荐', '宠物健康', '行为训练', '喂养经验', '宠物医院', '品种讨论', '新手养宠', '宠物美容'];
+  for (var i = 0; i < forumTags.length; i++) {
+    body += '        <a href="/search?keyword=' + encodeURIComponent(forumTags[i]) + '" class="tag">' + forumTags[i] + '</a>';
+  }
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">📊 论坛统计</h3>';
+  body += '      <div style="font-size:0.88rem;color:var(--muted);line-height:2;">';
+  body += '        <p>📢 今日新帖：<strong style="color:var(--accent);">加载中...</strong></p>';
+  body += '        <p>👥 活跃用户：<strong style="color:var(--green);">加载中...</strong></p>';
+  body += '        <p>💬 总帖数：<strong style="color:var(--pink);">加载中...</strong></p>';
+  body += '      </div>';
+  body += '    </div>';
+  body += '  </aside>';
+  body += '</div>';
+
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += '(function() {';
+  pageScript += '  let hotPage = 1;';
+  pageScript += '  const hotLimit = 10;';
+  pageScript += '  async function loadHotPosts(page) {';
+  pageScript += '    hotPage = page;';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=hot&page=" + page + "&limit=" + hotLimit);';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        const area = document.getElementById("hotPostsArea");';
+  pageScript += '        if (data.data.posts.length > 0) {';
+  pageScript += '          area.innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
+  pageScript += '          document.getElementById("hotPagination").innerHTML = renderPagination(data.data.total, page, hotLimit, "loadHotPosts");';
+  pageScript += '        } else { area.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热门帖子</p></div>\'; }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+  pageScript += '  async function loadEconomyPosts() {';
+  pageScript += '    try {';
+  pageScript += '      const res = await fetch("/api/posts?type=forum&keyword=" + encodeURIComponent("宠物经济") + "&limit=5");';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
+  pageScript += '        document.getElementById("economyPostsArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
+  pageScript += '      } else { document.getElementById("economyPostsArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无相关话题</p></div>\'; }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+  pageScript += '  async function loadUserPosts() {';
+  pageScript += '    const token = localStorage.getItem("token");';
+  pageScript += '    if (!token) return;';
+  pageScript += '    try {';
+  pageScript += '      const res = await authFetch("/api/auth/me");';
+  pageScript += '      const data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        const userId = data.data.user.id;';
+  pageScript += '        const postsRes = await fetch("/api/posts?limit=50");';
+  pageScript += '        const postsData = await postsRes.json();';
+  pageScript += '        if (postsData.code === 200) {';
+  pageScript += '          const userPosts = postsData.data.posts.filter(p => p.user_id === userId);';
+  pageScript += '          if (userPosts.length > 0) {';
+  pageScript += '            document.getElementById("userPostsSection").style.display = "block";';
+  pageScript += '            document.getElementById("userPostsArea").innerHTML = userPosts.map(p => renderPostItem(p)).join("");';
+  pageScript += '          }';
+  pageScript += '        }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  }';
+  pageScript += '  function requireLoginThen(callback) {';
+  pageScript += '    if (!localStorage.getItem("token")) { openModal("loginModal"); return; }';
+  pageScript += '    callback();';
+  pageScript += '  }';
+  pageScript += '  window.loadHotPosts = loadHotPosts;';
+  pageScript += '  loadHotPosts(1);';
+  pageScript += '  loadEconomyPosts();';
+  pageScript += '  loadUserPosts();';
+  pageScript += '})();';
+  pageScript += '</script>';
+%>
+<%- include('layout', { title: title, bodyClass: 'page-forum', body: body, pageScript: pageScript }) %>

@@ -1,0 +1,108 @@
+<%
+  var body = '';
+  body += '<div class="auth-page">';
+  body += '  <div class="auth-card">';
+  body += '    <h2>🐾 注册</h2>';
+  body += '    <p class="auth-subtitle">加入毛茸茸星球，开启养宠之旅</p>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">用户名 <span style="color:var(--accent);">*</span></label>';
+  body += '      <input type="text" class="form-input" id="regPageUsername" placeholder="2-20个字符">';
+  body += '    </div>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">邮箱 <span style="color:var(--accent);">*</span></label>';
+  body += '      <input type="email" class="form-input" id="regPageEmail" placeholder="请输入邮箱">';
+  body += '    </div>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">密码 <span style="color:var(--accent);">*</span></label>';
+  body += '      <input type="password" class="form-input" id="regPagePassword" placeholder="至少6个字符">';
+  body += '    </div>';
+  body += '    <div class="form-group">';
+  body += '      <label class="form-label">选择头像</label>';
+  body += '      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="regPageAvatarPicker">';
+  body += '        <span class="avatar-opt" data-avatar="🐱" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐱</span>';
+  body += '        <span class="avatar-opt" data-avatar="🐶" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐶</span>';
+  body += '        <span class="avatar-opt" data-avatar="🐰" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐰</span>';
+  body += '        <span class="avatar-opt" data-avatar="🐹" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐹</span>';
+  body += '        <span class="avatar-opt" data-avatar="🐦" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐦</span>';
+  body += '        <span class="avatar-opt" data-avatar="🐟" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🐟</span>';
+  body += '        <span class="avatar-opt" data-avatar="🦎" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🦎</span>';
+  body += '        <span class="avatar-opt" data-avatar="🦜" style="font-size:1.5rem;cursor:pointer;padding:4px;border:2px solid transparent;border-radius:8px;">🦜</span>';
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <div style="border-top:1px solid var(--rule);padding-top:16px;margin-top:8px;">';
+  body += '      <p style="font-size:0.88rem;color:var(--muted);margin-bottom:12px;">选填：添加你的第一个毛孩子</p>';
+  body += '      <div class="form-row">';
+  body += '        <div class="form-group">';
+  body += '          <label class="form-label">宠物名字</label>';
+  body += '          <input type="text" class="form-input" id="regPagePetName" placeholder="例如：小橘">';
+  body += '        </div>';
+  body += '        <div class="form-group">';
+  body += '          <label class="form-label">宠物类型</label>';
+  body += '          <select class="form-input" id="regPagePetType">';
+  body += '            <option value="cat">猫咪</option>';
+  body += '            <option value="dog">狗狗</option>';
+  body += '            <option value="rabbit">兔子</option>';
+  body += '            <option value="hamster">仓鼠</option>';
+  body += '            <option value="bird">鸟类</option>';
+  body += '            <option value="fish">鱼类</option>';
+  body += '            <option value="reptile">爬行类</option>';
+  body += '            <option value="other">其他</option>';
+  body += '          </select>';
+  body += '        </div>';
+  body += '      </div>';
+  body += '    </div>';
+  body += '    <p id="regPageError" style="color:#e74c3c;font-size:0.85rem;display:none;margin-bottom:10px;"></p>';
+  body += '    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="handlePageRegister()">注 册</button>';
+  body += '    <div class="auth-footer">';
+  body += '      已有账号？<a href="/login">去登录</a>';
+  body += '    </div>';
+  body += '  </div>';
+  body += '</div>';
+%>
+
+<%
+  var pageScript = '';
+  pageScript += '<script>';
+  pageScript += 'let regPageAvatar = "🐱";';
+
+  pageScript += '// Avatar picker for register page';
+  pageScript += 'document.getElementById("regPageAvatarPicker").addEventListener("click", function(e) {';
+  pageScript += '  if (e.target.classList.contains("avatar-opt")) {';
+  pageScript += '    this.querySelectorAll(".avatar-opt").forEach(el => el.style.borderColor = "transparent");';
+  pageScript += '    e.target.style.borderColor = "var(--accent)";';
+  pageScript += '    regPageAvatar = e.target.dataset.avatar;';
+  pageScript += '  }';
+  pageScript += '});';
+
+  pageScript += 'async function handlePageRegister() {';
+  pageScript += '  const username = document.getElementById("regPageUsername").value.trim();';
+  pageScript += '  const email = document.getElementById("regPageEmail").value.trim();';
+  pageScript += '  const password = document.getElementById("regPagePassword").value;';
+  pageScript += '  const petName = document.getElementById("regPagePetName").value.trim();';
+  pageScript += '  const petType = document.getElementById("regPagePetType").value;';
+  pageScript += '  const errorEl = document.getElementById("regPageError");';
+  pageScript += '  if (!username || !email || !password) { errorEl.textContent = "请填写所有必填项"; errorEl.style.display = "block"; return; }';
+  pageScript += '  try {';
+  pageScript += '    const body = { username, email, password, avatar: regPageAvatar };';
+  pageScript += '    if (petName) { body.petName = petName; body.petType = petType; }';
+  pageScript += '    const res = await fetch("/api/auth/register", {';
+  pageScript += '      method: "POST",';
+  pageScript += '      headers: { "Content-Type": "application/json" },';
+  pageScript += '      body: JSON.stringify(body)';
+  pageScript += '    });';
+  pageScript += '    const data = await res.json();';
+  pageScript += '    if (data.code === 201 || data.code === 200) {';
+  pageScript += '      localStorage.setItem("token", data.data.token);';
+  pageScript += '      localStorage.setItem("user", JSON.stringify(data.data.user));';
+  pageScript += '      showToast("注册成功，欢迎加入毛茸茸星球！", "success");';
+  pageScript += '      setTimeout(() => { window.location.href = "/"; }, 800);';
+  pageScript += '    } else {';
+  pageScript += '      errorEl.textContent = data.message || "注册失败";';
+  pageScript += '      errorEl.style.display = "block";';
+  pageScript += '    }';
+  pageScript += '  } catch(e) { errorEl.textContent = "网络错误，请稍后重试"; errorEl.style.display = "block"; }';
+  pageScript += '}';
+  pageScript += '</script>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-register', body: body, pageScript: pageScript }) %>
