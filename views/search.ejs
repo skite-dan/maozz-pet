@@ -17,7 +17,7 @@
   // Sidebar
   body += '  <aside class="sidebar">';
   body += '    <div class="widget">';
-  body += '      <h3 class="widget-title">🔍 搜索筛选</h3>';
+  body += '      <h3 class="widget-title">&#x1F50D; 搜索筛选</h3>';
   body += '      <div class="form-group">';
   body += '        <label class="form-label">内容类型</label>';
   body += '        <select class="form-input" id="searchType" onchange="doSearch(1)">';
@@ -37,7 +37,7 @@
   body += '    </div>';
 
   body += '    <div class="widget">';
-  body += '      <h3 class="widget-title">🏷️ 热门搜索</h3>';
+  body += '      <h3 class="widget-title">&#x1F3F7;&#xFE0F; 热门搜索</h3>';
   body += '      <div class="tag-cloud">';
   body += '        <a href="/search?keyword=猫咪" class="tag">猫咪</a>';
   body += '        <a href="/search?keyword=狗狗" class="tag">狗狗</a>';
@@ -54,48 +54,35 @@
 <%
   var pageScript = '';
   pageScript += '<script>';
-  pageScript += '(function() {';
-  pageScript += '  const params = new URLSearchParams(window.location.search);';
-  pageScript += '  const keyword = params.get("keyword") || "";';
-  pageScript += '  const urlType = params.get("type") || "";';
-  pageScript += '  let searchPage = 1;';
-  pageScript += '  const searchLimit = 10;';
-
-  pageScript += '  // Set initial values';
-  pageScript += '  if (urlType) document.getElementById("searchType").value = urlType;';
-
-  pageScript += '  function doSearch(page) {';
-  pageScript += '    searchPage = page;';
-  pageScript += '    const type = document.getElementById("searchType").value;';
-  pageScript += '    const sort = document.getElementById("searchSort").value;';
-  pageScript += '    let url = "/api/posts?keyword=" + encodeURIComponent(keyword) + "&page=" + page + "&limit=" + searchLimit + "&sort=" + sort;';
-  pageScript += '    if (type) url += "&type=" + type;';
-  pageScript += '    fetch(url)';
-  pageScript += '      .then(res => res.json())';
-  pageScript += '      .then(data => {';
-  pageScript += '        if (data.code === 200) {';
-  pageScript += '          document.getElementById("searchInfo").innerHTML = \'搜索 "<strong>\' + escapeHtml(keyword) + \'</strong>" 共找到 <strong>\' + data.data.total + \'</strong> 条结果\';';
-  pageScript += '          const area = document.getElementById("searchResults");';
-  pageScript += '          if (data.data.posts.length > 0) {';
-  pageScript += '            area.innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
-  pageScript += '            document.getElementById("searchPagination").innerHTML = renderPagination(data.data.total, page, searchLimit, "doSearch");';
-  pageScript += '          } else {';
-  pageScript += '            area.innerHTML = \'<div class="empty-state"><div class="empty-icon">🔍</div><p>未找到相关内容，换个关键词试试？</p></div>\';';
-  pageScript += '          }';
-  pageScript += '        }';
-  pageScript += '      })';
-  pageScript += '      .catch(e => console.error(e));';
-  pageScript += '  }';
-
-  pageScript += '  window.doSearch = doSearch;';
-
-  pageScript += '  if (keyword) {';
-  pageScript += '    doSearch(1);';
-  pageScript += '  } else {';
-  pageScript += '    document.getElementById("searchInfo").innerHTML = "请输入搜索关键词";';
-  pageScript += '    document.getElementById("searchResults").innerHTML = \'<div class="empty-state"><div class="empty-icon">🔍</div><p>请输入关键词开始搜索</p></div>\';';
-  pageScript += '  }';
-  pageScript += '})();';
+  pageScript += 'var params = new URLSearchParams(window.location.search);';
+  pageScript += 'var keyword = params.get("keyword") || "";';
+  pageScript += 'var urlType = params.get("type") || "";';
+  pageScript += 'var searchPage = 1;';
+  pageScript += 'var searchLimit = 10;';
+  pageScript += 'if (urlType) document.getElementById("searchType").value = urlType;';
+  pageScript += 'function doSearch(page) {';
+  pageScript += '  searchPage = page;';
+  pageScript += '  var type = document.getElementById("searchType").value;';
+  pageScript += '  var sort = document.getElementById("searchSort").value;';
+  pageScript += '  var url = "/api/posts?keyword=" + encodeURIComponent(keyword) + "&page=" + page + "&limit=" + searchLimit + "&sort=" + sort;';
+  pageScript += '  if (type) url += "&type=" + type;';
+  pageScript += '  fetch(url).then(function(res) { return res.json(); }).then(function(data) {';
+  pageScript += '    if (data.code === 200) {';
+  pageScript += '      document.getElementById("searchInfo").innerHTML = \'搜索 "<strong>\' + escapeHtml(keyword) + \'</strong>" 共找到 <strong>\' + data.data.total + \'</strong> 条结果\';';
+  pageScript += '      var area = document.getElementById("searchResults");';
+  pageScript += '      if (data.data.posts && data.data.posts.length > 0) {';
+  pageScript += '        area.innerHTML = data.data.posts.map(function(p) { return renderPostItem(p); }).join("");';
+  pageScript += '        document.getElementById("searchPagination").innerHTML = renderPagination(data.data.total, page, searchLimit, "doSearch");';
+  pageScript += '      } else {';
+  pageScript += '        area.innerHTML = \'<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><p>未找到相关内容，换个关键词试试？</p></div>\';';
+  pageScript += '      }';
+  pageScript += '    }';
+  pageScript += '  }).catch(function(e) { console.error(e); });';
+  pageScript += '}';
+  pageScript += 'if (keyword) { doSearch(1); } else {';
+  pageScript += '  document.getElementById("searchInfo").innerHTML = "请输入搜索关键词";';
+  pageScript += '  document.getElementById("searchResults").innerHTML = \'<div class="empty-state"><div class="empty-icon">&#x1F50D;</div><p>请输入关键词开始搜索</p></div>\';';
+  pageScript += '}';
   pageScript += '</script>';
 %>
 
