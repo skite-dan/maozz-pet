@@ -12,9 +12,12 @@ const app = express();
 // 安全中间件
 app.use(helmet({ contentSecurityPolicy: false }));
 
+// 信任反向代理，获取真实客户端IP
+app.set('trust proxy', true);
+
 // CORS - 允许前台跨域访问管理API
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'https://www.maozz.online', 'https://maozz.online'],
   credentials: true,
 }));
 
@@ -22,7 +25,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// 限流 - 后台更严格
+// 限流 - 后台更严格（基于真实IP）
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,

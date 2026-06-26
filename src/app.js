@@ -10,6 +10,10 @@ const app = express();
 
 // 安全中间件
 app.use(helmet({ contentSecurityPolicy: false }));
+
+// 信任反向代理，获取真实客户端IP
+app.set('trust proxy', true);
+
 app.use(cors());
 
 // Cookie解析
