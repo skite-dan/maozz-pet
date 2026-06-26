@@ -37,6 +37,8 @@ app.use(logger);
 
 // 静态资源 - 上传文件访问
 app.use('/uploads', express.static(path.join(__dirname, '..', 'src', 'public', 'uploads')));
+// 静态资源 - favicon等公共文件
+app.use(express.static(path.join(__dirname, '..', 'src', 'public')));
 
 // 视图引擎
 app.set('view engine', 'ejs');
