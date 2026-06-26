@@ -40,7 +40,7 @@ app.use((req, res, next) => {
 });
 
 // 静态资源
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '..', 'src', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'src', 'public', 'uploads')));
 
 // 视图引擎
