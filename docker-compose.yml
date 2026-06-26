@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  maozz-pet:
+    build: .
+    container_name: maozz-pet-app
+    network_mode: host
+    restart: always
+    volumes:
+      # 挂载环境配置文件（只读）
+      - /www/wwwroot/maozz-pet/.env:/app/.env:ro
+      # 挂载上传目录持久化
+      - /www/wwwroot/maozz-pet/src/public/uploads:/app/src/public/uploads
+      # 挂载日志目录持久化
+      - /www/wwwroot/maozz-pet/logs:/app/logs
+    environment:
+      - NODE_ENV=production
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

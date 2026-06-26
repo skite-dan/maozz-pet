@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+.env
+logs
+uploads
+*.md
+sql
+docs
+ops-manual
+deploy-record
+redeploy.sh
