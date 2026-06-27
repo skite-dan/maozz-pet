@@ -161,6 +161,42 @@ router.get('/posts/:id', async (req, res) => {
   }
 });
 
+// 新增帖子（管理员代发）
+router.post('/posts', async (req, res) => {
+  try {
+    const { title, content, user_id, post_type, category, tags, status = 'published', is_pinned, is_featured } = req.body;
+    if (!title || !content) return error(res, 400, '标题和内容不能为空');
+    if (!user_id) return error(res, 400, '请选择发帖用户');
+
+    // 验证用户存在
+    const user = await queryOne('SELECT id, username FROM users WHERE id = ? AND status = 1', [user_id]);
+    if (!user) return error(res, 400, '所选用户不存在或已禁用');
+
+    const result = await query(
+      'INSERT INTO posts (user_id, title, content, post_type, category, tags, status, is_pinned, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [user_id, title, content, post_type || 'forum', category || null, tags || null, status, is_pinned ? 1 : 0, is_featured ? 1 : 0]
+    );
+
+    // 处理媒体文件
+    if (req.body.media && req.body.media.length > 0) {
+      for (let i = 0; i < req.body.media.length; i++) {
+        const m = req.body.media[i];
+        await query(
+          'INSERT INTO post_media (post_id, media_type, media_url, thumbnail_url, file_size, mime_type, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [result.insertId, m.type || m.media_type || 'image', m.url || m.media_url, m.thumbnail || m.thumbnail_url || null, m.size || m.file_size || null, m.mime || m.mime_type || null, i]
+        );
+      }
+    }
+
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'create_post', 'post', result.insertId, req.ip]);
+
+    success(res, { id: result.insertId }, '帖子创建成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
 // 更新帖子内容
 router.put('/posts/:id', async (req, res) => {
   try {

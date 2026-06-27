@@ -42,13 +42,11 @@ router.get('/robots.txt', (req, res) => {
 // 页面路由 - 传递基础数据给模板
 router.get('/', async (req, res, next) => {
   try {
+    const postsWithImages = 'SELECT p.*, u.username, u.avatar, (SELECT GROUP_CONCAT(pm.media_url ORDER BY pm.sort_order) FROM post_media pm WHERE pm.post_id = p.id AND pm.media_type = \'image\') AS images FROM posts p JOIN users u ON p.user_id = u.id';
     const [hotPosts, latestPosts, forumPosts, banners] = await Promise.all([
-      query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' ORDER BY p.view_count DESC, p.like_count DESC LIMIT 6`),
-      query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' ORDER BY p.created_at DESC LIMIT 8`),
-      query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' AND p.post_type = 'forum' ORDER BY p.created_at DESC LIMIT 5`),
+      query(`${postsWithImages} WHERE p.status = 'published' ORDER BY p.view_count DESC, p.like_count DESC LIMIT 6`),
+      query(`${postsWithImages} WHERE p.status = 'published' ORDER BY p.created_at DESC LIMIT 8`),
+      query(`${postsWithImages} WHERE p.status = 'published' AND p.post_type = 'forum' ORDER BY p.created_at DESC LIMIT 5`),
       query(`SELECT * FROM banners WHERE status = 1 ORDER BY sort_order ASC, id ASC LIMIT 5`),
     ]);
     res.render('index', { title: '铲屎官必备 | 毛茸茸星球 — 养宠攻略·宠物问答·萌宠社区', hotPosts, latestPosts, forumPosts, banners });
@@ -112,7 +110,7 @@ router.get('/post/:id', async (req, res, next) => {
 
     // 为文章详情页生成 SEO 数据
     const excerpt = post.summary || (post.content || '').replace(/<[^>]*>/g, '').substring(0, 160);
-    const coverImage = media.length > 0 ? `${SITE_URL}/uploads/${media[0].file_path}` : '';
+    const coverImage = media.length > 0 ? (media[0].media_url.startsWith('http') ? media[0].media_url : `${SITE_URL}${media[0].media_url}`) : '';
     const structuredData = JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Article",
