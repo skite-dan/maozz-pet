@@ -42,6 +42,7 @@ app.use((req, res, next) => {
 // SEO 全局变量
 app.use((req, res, next) => {
   res.locals.siteUrl = process.env.SITE_URL || 'https://www.maozz.online';
+  res.locals.req = req;
   next();
 });
 
