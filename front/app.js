@@ -39,6 +39,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// SEO 全局变量
+app.use((req, res, next) => {
+  res.locals.siteUrl = process.env.SITE_URL || 'https://www.maozz.online';
+  next();
+});
+
 // 静态资源
 app.use(express.static(path.join(__dirname, '..', 'src', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'src', 'public', 'uploads')));
