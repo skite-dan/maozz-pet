@@ -21,8 +21,9 @@ router.get('/sitemap.xml', async (req, res, next) => {
       xml += `  <url>\n    <loc>${SITE_URL}${p}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>${p === '' ? '1.0' : '0.7'}</priority>\n  </url>\n`;
     });
     posts.forEach(p => {
-      const slug = p.title.replace(/[<>"'&]/g, '').substring(0, 50);
-      xml += `  <url>\n    <loc>${SITE_URL}/post/${p.id}</loc>\n    <lastmod>${(p.updated_at || today).toISOString().split('T')[0]}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
+      const slug = p.title.replace(/[<>'"&]/g, '').substring(0, 50);
+      const lastmod = p.updated_at ? new Date(p.updated_at).toISOString().split('T')[0] : today;
+      xml += `  <url>\n    <loc>${SITE_URL}/post/${p.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n`;
     });
     xml += '</urlset>';
     res.type('application/xml').send(xml);
