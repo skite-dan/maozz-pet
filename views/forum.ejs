@@ -1,46 +1,73 @@
 <%
-  var body = '';
+  var catGroups = [
+    { key: 'qa', title: '养宠问答', icon: '💬', color: '#ff6b35', bg: '#fff5f0', desc: '养宠知识交流与求助',
+      items: [{key:'cat-feed', label:'猫狗饲养'},{key:'cat-disease', label:'疾病问诊'},{key:'food-review', label:'粮食测评'},{key:'daily-care', label:'医疗护理'}] },
+    { key: 'city', title: '同城板块', icon: '📍', color: '#4ecdc4', bg: '#f0faf9', desc: '同城宠物交流与活动',
+      items: [{key:'city-adoption', label:'宠物领养'},{key:'lost-found', label:'寻宠招领'},{key:'city-breed', label:'家养配种'},{key:'city-walk', label:'遛宠聚会'}] },
+    { key: 'community', title: '萌宠社区', icon: '🐾', color: '#ff85a1', bg: '#fff5f8', desc: '萌宠日常与互动分享',
+      items: [{key:'daily-show', label:'晒日常'},{key:'newcomer', label:'新人报到'},{key:'fun-topic', label:'吐槽话题'},{key:'blacklist', label:'避雷曝光'}] },
+    { key: 'trade', title: '闲置交易', icon: '🛒', color: '#c77dff', bg: '#faf5ff', desc: '宠物用品转让与服务',
+      items: [{key:'secondhand', label:'用品转让'},{key:'pet-transfer', label:'幼犬幼猫'},{key:'service', label:'寄养美容'},{key:'product-review', label:'好物互换'}] }
+  ];
+  var catMap = {'cat-feed':'猫狗饲养经验','cat-disease':'宠物疾病问诊','food-review':'粮食用品测评','daily-care':'医疗护理科普','city-adoption':'无偿宠物领养','lost-found':'寻宠招领信息','city-breed':'家养配种交流','city-walk':'线下遛宠聚会','daily-show':'毛孩子晒日常','newcomer':'新人报到灌水','fun-topic':'养宠吐槽话题','blacklist':'行业避雷曝光','secondhand':'宠物用品转让','pet-transfer':'家养幼犬幼猫','service':'寄养美容服务','product-review':'二手好物互换'};
 
-  body += '<div class="breadcrumb">';
+  var body = '';
+  body += '<div class="breadcrumb" id="forumBreadcrumb">';
   body += '  <a href="/">首页</a> <span class="sep">/</span>';
-  body += '  <span class="current">宠物论坛</span>';
+  body += '  <a href="/forum" id="breadcrumbL1">全部论坛</a>';
+  body += '  <span class="sep cat-sep" style="display:none;">/</span>';
+  body += '  <span class="current cat-current" style="display:none;"></span>';
   body += '</div>';
 
   body += '<div class="page-layout">';
   body += '  <div class="content-area">';
-
-  body += '  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">';
-  body += '    <h2 class="section-title" style="margin-bottom:0;"><span class="icon">💬</span> 宠物论坛</h2>';
+  body += '  <div class="forum-header">';
+  body += '    <div class="forum-header-left">';
+  body += '      <h1 class="forum-title">💬 宠物论坛</h1>';
+  body += '      <p class="forum-subtitle">分享养宠经验，交流萌宠日常，百万铲屎官的共同选择</p>';
+  body += '    </div>';
   body += '    <button class="btn btn-primary btn-sm" onclick="requireLoginThen(function(){ openModal(\'postModal\'); })">✏️ 发布新帖</button>';
   body += '  </div>';
 
-  body += '  <section id="userPostsSection" style="display:none;margin-bottom:30px;">';
-  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">👤</span> 我的帖子</h3>';
-  body += '    <div class="post-list" id="userPostsArea"></div>';
-  body += '  </section>';
+  body += '  <div class="cat-groups" id="catGroups">';
+  for (var gi = 0; gi < catGroups.length; gi++) {
+    var g = catGroups[gi];
+    body += '    <div class="cat-group-card" data-group="' + g.key + '" style="--gcolor:' + g.color + ';--gbg:' + g.bg + '">';
+    body += '      <div class="cat-group-header">';
+    body += '        <span class="cat-group-icon" style="background:' + g.color + '20;color:' + g.color + '">' + g.icon + '</span>';
+    body += '        <div class="cat-group-info">';
+    body += '          <div class="cat-group-title">' + g.title + '</div>';
+    body += '          <div class="cat-group-desc">' + g.desc + '</div>';
+    body += '        </div>';
+    body += '      </div>';
+    body += '      <div class="cat-group-tags">';
+    for (var ci = 0; ci < g.items.length; ci++) {
+      var item = g.items[ci];
+      body += '        <button class="cat-tag" data-cat="' + item.key + '" onclick="filterByCategory(\'' + item.key + '\')">' + item.label + '</button>';
+    }
+    body += '      </div>';
+    body += '    </div>';
+  }
+  body += '  </div>';
+
+  body += '  <div class="sort-tabs" id="sortTabs">';
+  body += '    <button class="sort-tab active" data-sort="hot" onclick="setSort(\'hot\')">🔥 热门</button>';
+  body += '    <button class="sort-tab" data-sort="latest" onclick="setSort(\'latest\')">🆕 最新</button>';
+  body += '  </div>';
 
   body += '  <section>';
-  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">🔥</span> 热门讨论</h3>';
   body += '    <div class="post-list" id="hotPostsArea">';
-  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '      <div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
   body += '    </div>';
   body += '    <div id="hotPagination"></div>';
   body += '  </section>';
-
-  body += '  <section style="margin-top:30px;">';
-  body += '    <h3 class="section-title" style="font-size:1.15rem;"><span class="icon">💰</span> 宠物经济话题</h3>';
-  body += '    <div class="post-list" id="economyPostsArea">';
-  body += '      <div class="loading"><div class="spinner"></div>加载中...</div>';
-  body += '    </div>';
-  body += '  </section>';
-
   body += '  </div>';
 
   body += '  <aside class="sidebar">';
   body += '    <div class="widget">';
   body += '      <h3 class="widget-title">🏷️ 热门标签</h3>';
   body += '      <div class="tag-cloud">';
-  var forumTags = ['养宠求助', '日常分享', '好物推荐', '宠物健康', '行为训练', '喂养经验', '宠物医院', '品种讨论', '新手养宠', '宠物美容'];
+  var forumTags = ['养宠求助','日常分享','好物推荐','宠物健康','行为训练','喂养经验','宠物医院','品种讨论','新手养宠','宠物美容'];
   for (var i = 0; i < forumTags.length; i++) {
     body += '        <a href="/search?keyword=' + encodeURIComponent(forumTags[i]) + '" class="tag">' + forumTags[i] + '</a>';
   }
@@ -48,11 +75,16 @@
   body += '    </div>';
   body += '    <div class="widget">';
   body += '      <h3 class="widget-title">📊 论坛统计</h3>';
-  body += '      <div style="font-size:0.88rem;color:var(--muted);line-height:2;">';
-  body += '        <p>📢 今日新帖：<strong style="color:var(--accent);">加载中...</strong></p>';
-  body += '        <p>👥 活跃用户：<strong style="color:var(--green);">加载中...</strong></p>';
-  body += '        <p>💬 总帖数：<strong style="color:var(--pink);">加载中...</strong></p>';
+  body += '      <div class="stat-list">';
+  body += '        <div class="stat-item"><span class="stat-icon">📢</span><span class="stat-label">今日新帖</span><strong class="stat-value" id="statToday" style="color:var(--accent);">--</strong></div>';
+  body += '        <div class="stat-item"><span class="stat-icon">👥</span><span class="stat-label">活跃用户</span><strong class="stat-value" id="statUsers" style="color:var(--green);">--</strong></div>';
+  body += '        <div class="stat-item"><span class="stat-icon">💬</span><span class="stat-label">总帖数</span><strong class="stat-value" id="statTotal" style="color:var(--pink);">--</strong></div>';
   body += '      </div>';
+  body += '    </div>';
+  body += '    <div class="widget">';
+  body += '      <h3 class="widget-title">👑 版主招募</h3>';
+  body += '      <p style="font-size:0.85rem;color:var(--muted);line-height:1.6;">各板块诚邀资深铲屎官担任版主，维护社区秩序，分享专业经验。</p>';
+  body += '      <a href="/about" class="btn btn-outline btn-sm" style="margin-top:10px;width:100%;text-align:center;">申请版主</a>';
   body += '    </div>';
   body += '  </aside>';
   body += '</div>';
@@ -62,58 +94,88 @@
   pageScript += '(function() {';
   pageScript += '  let hotPage = 1;';
   pageScript += '  const hotLimit = 10;';
+  pageScript += '  let currentCategory = "";';
+  pageScript += '  let currentSort = "hot";';
+  pageScript += '  var catMap = {"cat-feed":"猫狗饲养经验","cat-disease":"宠物疾病问诊","food-review":"粮食用品测评","daily-care":"医疗护理科普","city-adoption":"无偿宠物领养","lost-found":"寻宠招领信息","city-breed":"家养配种交流","city-walk":"线下遛宠聚会","daily-show":"毛孩子晒日常","newcomer":"新人报到灌水","fun-topic":"养宠吐槽话题","blacklist":"行业避雷曝光","secondhand":"宠物用品转让","pet-transfer":"家养幼犬幼猫","service":"寄养美容服务","product-review":"二手好物互换"};';
+  pageScript += '  var groupMap = {"cat-feed":"养宠问答","cat-disease":"养宠问答","food-review":"养宠问答","daily-care":"养宠问答","city-adoption":"同城板块","lost-found":"同城板块","city-breed":"同城板块","city-walk":"同城板块","daily-show":"萌宠社区","newcomer":"萌宠社区","fun-topic":"萌宠社区","blacklist":"萌宠社区","secondhand":"闲置交易","pet-transfer":"闲置交易","service":"闲置交易","product-review":"闲置交易"};';
+  pageScript += '  function filterByCategory(cat) {';
+  pageScript += '    currentCategory = cat;';
+  pageScript += '    hotPage = 1;';
+  pageScript += '    document.querySelectorAll(".cat-tag").forEach(function(btn) {';
+  pageScript += '      var isActive = btn.getAttribute("data-cat") === cat;';
+  pageScript += '      btn.style.background = isActive ? "var(--gcolor)" : "";';
+  pageScript += '      btn.style.color = isActive ? "#fff" : "";';
+  pageScript += '      btn.style.borderColor = isActive ? "var(--gcolor)" : "";';
+  pageScript += '    });';
+  pageScript += '    updateBreadcrumb(cat);';
+  pageScript += '    loadHotPosts(1);';
+  pageScript += '  }';
+  pageScript += '  function updateBreadcrumb(cat) {';
+  pageScript += '    var sep = document.querySelector("#forumBreadcrumb .cat-sep");';
+  pageScript += '    var cur = document.querySelector("#forumBreadcrumb .cat-current");';
+  pageScript += '    var l1 = document.getElementById("breadcrumbL1");';
+  pageScript += '    if (cat) {';
+  pageScript += '      sep.style.display = "inline"; cur.style.display = "inline"; cur.textContent = catMap[cat] || cat;';
+  pageScript += '      l1.textContent = groupMap[cat] || "全部论坛";';
+  pageScript += '    } else {';
+  pageScript += '      sep.style.display = "none"; cur.style.display = "none";';
+  pageScript += '      l1.textContent = "全部论坛";';
+  pageScript += '    }';
+  pageScript += '  }';
+  pageScript += '  function setSort(sort) {';
+  pageScript += '    currentSort = sort;';
+  pageScript += '    document.querySelectorAll(".sort-tab").forEach(function(tab) { tab.classList.toggle("active", tab.getAttribute("data-sort") === sort); });';
+  pageScript += '    loadHotPosts(1);';
+  pageScript += '  }';
   pageScript += '  async function loadHotPosts(page) {';
   pageScript += '    hotPage = page;';
+  pageScript += '    var area = document.getElementById("hotPostsArea");';
+  pageScript += '    area.innerHTML = \'<div class="loading"><div class="spinner"></div><p>加载中...</p></div>\';';
   pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=hot&page=" + page + "&limit=" + hotLimit);';
-  pageScript += '      const data = await res.json();';
+  pageScript += '      var userCity = localStorage.getItem("userCity") || "";';
+  pageScript += '      var url = "/api/posts?type=forum&sort=" + currentSort + "&page=" + page + "&limit=" + hotLimit;';
+  pageScript += '      if (currentSort === "city_latest" && userCity) url += "&city=" + encodeURIComponent(userCity);';
+  pageScript += '      if (currentCategory) url += "&category=" + encodeURIComponent(currentCategory);';
+  pageScript += '      var res = await fetch(url);';
+  pageScript += '      var data = await res.json();';
   pageScript += '      if (data.code === 200) {';
-  pageScript += '        const area = document.getElementById("hotPostsArea");';
   pageScript += '        if (data.data.posts.length > 0) {';
-  pageScript += '          area.innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
+  pageScript += '          area.innerHTML = data.data.posts.map(function(p) { return renderPostItemEnhanced(p); }).join("");';
   pageScript += '          document.getElementById("hotPagination").innerHTML = renderPagination(data.data.total, page, hotLimit, "loadHotPosts");';
-  pageScript += '        } else { area.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热门帖子</p></div>\'; }';
-  pageScript += '      }';
-  pageScript += '    } catch(e) { console.error(e); }';
-  pageScript += '  }';
-  pageScript += '  async function loadEconomyPosts() {';
-  pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&keyword=" + encodeURIComponent("宠物经济") + "&limit=5");';
-  pageScript += '      const data = await res.json();';
-  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
-  pageScript += '        document.getElementById("economyPostsArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
-  pageScript += '      } else { document.getElementById("economyPostsArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无相关话题</p></div>\'; }';
-  pageScript += '    } catch(e) { console.error(e); }';
-  pageScript += '  }';
-  pageScript += '  async function loadUserPosts() {';
-  pageScript += '    const token = localStorage.getItem("token");';
-  pageScript += '    if (!token) return;';
-  pageScript += '    try {';
-  pageScript += '      const res = await authFetch("/api/auth/me");';
-  pageScript += '      const data = await res.json();';
-  pageScript += '      if (data.code === 200) {';
-  pageScript += '        const userId = data.data.user.id;';
-  pageScript += '        const postsRes = await fetch("/api/posts?limit=50");';
-  pageScript += '        const postsData = await postsRes.json();';
-  pageScript += '        if (postsData.code === 200) {';
-  pageScript += '          const userPosts = postsData.data.posts.filter(p => p.user_id === userId);';
-  pageScript += '          if (userPosts.length > 0) {';
-  pageScript += '            document.getElementById("userPostsSection").style.display = "block";';
-  pageScript += '            document.getElementById("userPostsArea").innerHTML = userPosts.map(p => renderPostItem(p)).join("");';
-  pageScript += '          }';
+  pageScript += '        } else {';
+  pageScript += '          area.innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>该板块暂无帖子</p><span class="empty-hint">快来发布第一帖吧！</span></div>\';';
   pageScript += '        }';
   pageScript += '      }';
-  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '    } catch(e) { console.error(e); area.innerHTML = \'<div class="empty-state"><div class="empty-icon">⚠️</div><p>加载失败，请刷新重试</p></div>\'; }';
   pageScript += '  }';
-  pageScript += '  function requireLoginThen(callback) {';
-  pageScript += '    if (!localStorage.getItem("token")) { openModal("loginModal"); return; }';
-  pageScript += '    callback();';
+  pageScript += '  function renderPostItemEnhanced(post) {';
+  pageScript += '    var images = post.images ? post.images.split(",") : [];';
+  pageScript += '    var thumbHtml = images.length > 0 ? \'<img class="post-thumb" src="\' + images[0] + \'" alt="" loading="lazy">\' : \'\';';
+  pageScript += '    var avatarHtml = (post.user_avatar_url || post.avatar) ? \'<div class="post-avatar">\' + (post.user_avatar_url ? \'<img src="\' + post.user_avatar_url + \'">\' : post.avatar) + \'</div>\' : \'<div class="post-avatar">🐱</div>\';';
+  pageScript += '    var reviewBadge = post.review_status === \'pending\' ? \'<span class="tag tag-orange">&#x23F3; 审核中</span>\' : \'\';';
+  pageScript += '    var catBadge = post.category ? \'<span class="post-cat-badge">\' + (catMap[post.category] || post.category) + \'</span>\' : \'\';';
+  pageScript += '    return \'<div class="post-item">\' + avatarHtml + \'<div class="post-content">\' +';
+  pageScript += '      \'<div class="post-header">\' + \'<span class="post-author">\' + (post.username || "匿名") + \'</span>\' +';
+  pageScript += '      \'<span class="post-time">\' + formatDate(post.created_at) + \'</span>\' + catBadge +';
+  pageScript += '      (post.is_pinned ? \'<span class="tag tag-purple">置顶</span>\' : \'\') + \'</div>\' +';
+  pageScript += '      \'<div class="post-title-text"><a href="/post/\' + (post.slug || post.id) + \'">\' + escapeHtml(post.title) + \'</a></div>\' +';
+  pageScript += '      \'<div class="post-desc">\' + escapeHtml(stripHtml(post.content)) + \'</div>\' +';
+  pageScript += '      \'<div class="post-footer">\' +';
+  pageScript += '      \'<span>👁 \' + (post.view_count || 0) + \'</span><span>❤️ \' + (post.like_count || 0) + \'</span><span>💬 \' + (post.comment_count || 0) + \'</span>\' +';
+  pageScript += '      \'</div></div>\' + thumbHtml + \'</div>\';';
+  pageScript += '  }';
+  pageScript += '  async function loadStats() {';
+  pageScript += '    try { var res = await fetch("/api/posts?type=forum&limit=1"); var data = await res.json(); if (data.code === 200) { document.getElementById("statTotal").textContent = data.data.total || 0; } } catch(e) {}';
   pageScript += '  }';
   pageScript += '  window.loadHotPosts = loadHotPosts;';
-  pageScript += '  loadHotPosts(1);';
-  pageScript += '  loadEconomyPosts();';
-  pageScript += '  loadUserPosts();';
+  pageScript += '  window.setSort = setSort;';
+  pageScript += '  window.filterByCategory = filterByCategory;';
+  pageScript += '  var urlParams = new URLSearchParams(window.location.search);';
+  pageScript += '  var initCat = urlParams.get("category");';
+  pageScript += '  if (initCat) filterByCategory(initCat);';
+  pageScript += '  else loadHotPosts(1);';
+  pageScript += '  loadStats();';
   pageScript += '})();';
-  pageScript += '</script>';
+  pageScript += '<\/script>';
 %>
-<%- include('layout', { title: title, bodyClass: 'page-forum', body: body, pageScript: pageScript }) %>
+<%- include('layout', { title: '宠物论坛 - 毛茸茸星球', bodyClass: 'page-forum', body: body, pageScript: pageScript }) %>

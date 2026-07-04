@@ -36,6 +36,12 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign({ id: result.insertId, username, role: 'user' }, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
     const user = await queryOne('SELECT id, username, email, avatar, role, created_at FROM users WHERE id = ?', [result.insertId]);
 
+    // 赠送注册积分
+    try {
+      await query('UPDATE users SET points = points + 50 WHERE id = ?', [result.insertId]);
+      await query('INSERT INTO user_points_log (user_id, action, points, balance, description) VALUES (?, ?, ?, ?, ?)', [result.insertId, 'register', 50, 50, '新用户注册奖励']);
+      user.points = 50;
+    } catch(e) { console.error('Points error:', e); }
     created(res, { token, user }, '注册成功');
   } catch (err) {
     return error(res, 500, '注册失败: ' + err.message);
@@ -61,6 +67,16 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
     const { password_hash, ...userInfo } = user;
 
+    // 登录奖励积分（每日首次）
+    try {
+      const todayLogin = await queryOne('SELECT id FROM user_points_log WHERE user_id = ? AND action = ? AND DATE(created_at) = CURDATE() LIMIT 1', [user.id, 'daily_login']);
+      if (!todayLogin) {
+        await query('UPDATE users SET points = points + 5 WHERE id = ?', [user.id]);
+        const newBalance = (userInfo.points || 0) + 5;
+        await query('INSERT INTO user_points_log (user_id, action, points, balance, description) VALUES (?, ?, ?, ?, ?)', [user.id, 'daily_login', 5, newBalance, '每日登录奖励']);
+        userInfo.points = newBalance;
+      }
+    } catch(e) { console.error('Login points error:', e); }
     success(res, { token, user: userInfo }, '登录成功');
   } catch (err) {
     return error(res, 500, '登录失败: ' + err.message);
@@ -111,7 +127,11 @@ router.get('/me', auth, async (req, res) => {
     if (!user) return error(res, 404, '用户不存在');
 
     const pets = await query('SELECT * FROM pets WHERE user_id = ? AND is_deleted = 0', [req.user.id]);
-    success(res, { user, pets });
+    let pointsLog = [];
+    try {
+      pointsLog = await query('SELECT * FROM user_points_log WHERE user_id = ? ORDER BY created_at DESC LIMIT 20', [req.user.id]);
+    } catch(e) { /* 积分表可能尚未创建 */ }
+    success(res, { user, pets, pointsLog });
   } catch (err) {
     return error(res, 500, err.message);
   }

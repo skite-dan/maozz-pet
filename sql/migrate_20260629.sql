@@ -1,0 +1,61 @@
+﻿DROP PROCEDURE IF EXISTS migrate_add_column;
+DELIMITER `
+CREATE PROCEDURE migrate_add_column()
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'points') THEN
+    ALTER TABLE users ADD COLUMN points INT NOT NULL DEFAULT 0 AFTER status;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'phone') THEN
+    ALTER TABLE users ADD COLUMN phone VARCHAR(20) DEFAULT NULL AFTER email;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'invite_code') THEN
+    ALTER TABLE users ADD COLUMN invite_code VARCHAR(20) DEFAULT NULL AFTER points;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'invited_by') THEN
+    ALTER TABLE users ADD COLUMN invited_by INT UNSIGNED DEFAULT NULL AFTER invite_code;
+  END IF;
+END`
+DELIMITER ;
+CALL migrate_add_column();
+DROP PROCEDURE IF EXISTS migrate_add_column;
+
+DROP PROCEDURE IF EXISTS migrate_add_column2;
+DELIMITER `
+CREATE PROCEDURE migrate_add_column2()
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts' AND COLUMN_NAME = 'review_status') THEN
+    ALTER TABLE posts ADD COLUMN review_status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'approved' AFTER status;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts' AND COLUMN_NAME = 'city') THEN
+    ALTER TABLE posts ADD COLUMN city VARCHAR(50) DEFAULT NULL AFTER category;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'posts' AND COLUMN_NAME = 'post_template') THEN
+    ALTER TABLE posts ADD COLUMN post_template VARCHAR(50) DEFAULT NULL AFTER city;
+  END IF;
+END`
+DELIMITER ;
+CALL migrate_add_column2();
+DROP PROCEDURE IF EXISTS migrate_add_column2;
+
+CREATE TABLE IF NOT EXISTS user_points_log (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  action VARCHAR(50) NOT NULL,
+  points INT NOT NULL,
+  balance INT NOT NULL,
+  description VARCHAR(255) DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_id (user_id),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS post_reviews (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  post_id INT UNSIGNED NOT NULL,
+  reviewer_id INT UNSIGNED DEFAULT NULL,
+  action ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  reason VARCHAR(500) DEFAULT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_post_id (post_id),
+  INDEX idx_action (action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

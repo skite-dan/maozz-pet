@@ -1,4 +1,4 @@
-<%
+
   // Build body content first
   var body = '';
 
@@ -46,6 +46,13 @@
   body += '</section>';
 
 
+body += `<div class="cta-bar" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">`;
+body += `  <a href="/search?keyword=新手养猫" class="btn btn-outline btn-sm">🐱 新手养猫答疑</a>`;
+body += `  <a href="/search?keyword=遛狗" class="btn btn-outline btn-sm">🐶 同城遛宠组队</a>`;
+body += `  <a href="/search?keyword=无偿领养" class="btn btn-outline btn-sm">💖 无偿领养</a>`;
+body += `  <a href="/search?keyword=闲置" class="btn btn-outline btn-sm">🛍️ 闲置互换</a>`;
+body += `</div>`;
+
   body += '<div class="page-layout">';
   body += '  <div class="content-area">';
 
@@ -75,7 +82,7 @@
 
   // Featured
   body += '    <section>';
-  body += '      <h2 class="section-title"><span class="icon">&#x2B50;</span> 精选推荐 <a href="/forum?sort=likes" class="more">查看更多 →</a></h2>';
+  body += '      <h2 class="section-title"><span class="icon">&#x2B50;</span> 精选推荐 <a href="/knowledge" class="more">查看更多 →</a></h2>';
   body += '      <div class="featured-article" id="featuredArea">';
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
   body += '      </div>';
@@ -91,7 +98,7 @@
 
   // Hot Discussions
   body += '    <section>';
-  body += '      <h2 class="section-title"><span class="icon">&#x1F4AC;</span> 热门讨论 <a href="/forum?sort=comments" class="more">查看更多 →</a></h2>';
+  body += '      <h2 class="section-title"><span class="icon">&#x1F4AC;</span> 热门讨论 <a href="/forum" class="more">查看更多 →</a></h2>';
   body += '      <div class="post-list" id="hotForumArea">';
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
   body += '      </div>';
@@ -99,14 +106,14 @@
 
 
 body += `    <section>`;
-body += `      <h2 class="section-title"><span class="icon">📊</span> 本周热帖 <a href="/forum?sort=weekly_views" class="more">查看更多 →</a></h2>`;
+body += `      <h2 class="section-title"><span class="icon">📊</span> 本周热帖</h2>`;
 body += `      <div class="post-list" id="weeklyHotArea">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
 body += `      </div>`;
 body += `    </section>`;
 
 body += `    <section>`;
-body += `      <h2 class="section-title"><span class="icon">📍</span> 同城动态 <a href="/forum?sort=city_latest" class="more">查看更多 →</a></h2>`;
+body += `      <h2 class="section-title"><span class="icon">📍</span> 同城动态 <a href="/forum?category=city-adoption" class="more">查看更多 →</a></h2>`;
 body += `      <div class="post-list" id="cityArea">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
 body += `      </div>`;
@@ -121,7 +128,7 @@ body += `    </section>`;
 
 body += `    <section>`;
 body += `      <h2 class="section-title"><span class="icon">👋</span> 新人报到</h2>`;
-body += `      <div id="newcomerZone" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;">`;
+body += `      <div id="newcomerZone" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
 body += `      </div>`;
 body += `    </section>`;
@@ -142,35 +149,17 @@ body += `    </section>`;
   // Pet Data
 body += `    <div class="widget">`;
 body += `      <h3 class="widget-title">📡 社区动态</h3>`;
-body += `      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statUsers">0</div>`;
-body += `          <div class="label">注册铲屎官</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statPosts">0</div>`;
-body += `          <div class="label">帖子总数</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statProfiles">0</div>`;
-body += `          <div class="label">萌宠档案</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statViews">0</div>`;
-body += `          <div class="label">累计浏览</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statNewPosts">0</div>`;
-body += `          <div class="label">今日新帖</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statOnline">--</div>`;
-body += `          <div class="label">在线铲屎官</div>`;
-body += `        </div>`;
-body += `        <div class="realtime-stat">`;
-body += `          <div class="num" id="statPending">0</div>`;
-body += `          <div class="label">待解答问诊帖</div>`;
-body += `        </div>`;
+body += `      <div class="realtime-stat">`;
+body += `        <div class="num" id="statNewPosts">0</div>`;
+body += `        <div class="label">今日新帖</div>`;
+body += `      </div>`;
+body += `      <div class="realtime-stat">`;
+body += `        <div class="num" id="statPending">0</div>`;
+body += `        <div class="label">待解答问诊</div>`;
+body += `      </div>`;
+body += `      <div class="realtime-stat">`;
+body += `        <div class="num" id="statOnline">--</div>`;
+body += `        <div class="label">在线铲屎官</div>`;
 body += `      </div>`;
 body += `    </div>`;
 
@@ -221,7 +210,7 @@ body += `    </div>`;
   pageScript += '  }';
   pageScript += '  async function loadFeatured() {';
   pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=likes&limit=2");';
+  pageScript += '      const res = await fetch("/api/posts?type=knowledge&sort=hot&limit=2");';
   pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
   pageScript += '        document.getElementById("featuredArea").innerHTML = data.data.posts.map(p => renderArticleCard(p)).join("");';
@@ -243,7 +232,7 @@ body += `    </div>`;
   pageScript += '  }';
   pageScript += '  async function loadHotForum() {';
   pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=comments&limit=8");';
+  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=hot&limit=8");';
   pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
   pageScript += '        document.getElementById("hotForumArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
@@ -254,13 +243,15 @@ body += `    </div>`;
   pageScript += '  }';
 pageScript += `  async function loadWeeklyHot() {`;
 pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?type=forum&sort=weekly_views&limit=6");`;
+pageScript += `      const res = await fetch("/api/posts?sort=hot&limit=6");`;
 pageScript += `      const data = await res.json();`;
 pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
 pageScript += `        document.getElementById("weeklyHotArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");`;
-pageScript += '        document.getElementById("weeklyHotList").innerHTML = data.data.posts.slice(0,8).map((p,i) => \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></span></div>\').join("");';
+pageScript += `        document.getElementById("weeklyHotList").innerHTML = data.data.posts.slice(0,8).map((p,i) => \`;
+pageScript += `<div class="hot-list-item"><span class="rank">\${i+1}</span><span class="text"><a href="/post/\${p.id}">\${escapeHtml(p.title)}</a></span></div>`;
+pageScript += `\`).join("");`;
 pageScript += `      } else {`;
-pageScript += '        document.getElementById("weeklyHotArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热帖</p></div>\';';
+pageScript += `        document.getElementById("weeklyHotArea").innerHTML = \`<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热帖</p></div>\`;`;
 pageScript += `        document.getElementById("weeklyHotList").innerHTML = "";`;
 pageScript += `      }`;
 pageScript += `    } catch(e) { console.error(e); }`;
@@ -268,12 +259,12 @@ pageScript += `  }`;
 
 pageScript += `  async function loadCityPosts() {`;
 pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?type=forum&sort=city_latest&city=" + (localStorage.getItem("userCity") || "") + "&limit=4");`;
+pageScript += `      const res = await fetch("/api/posts?category=city-adoption&limit=4");`;
 pageScript += `      const data = await res.json();`;
 pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
 pageScript += `        document.getElementById("cityArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");`;
 pageScript += `      } else {`;
-pageScript += '        document.getElementById("cityArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无同城动态</p></div>\';';
+pageScript += `        document.getElementById("cityArea").innerHTML = \`<div class="empty-state"><div class="empty-icon">📭</div><p>暂无同城动态</p></div>\`;`;
 pageScript += `      }`;
 pageScript += `    } catch(e) { console.error(e); }`;
 pageScript += `  }`;
@@ -284,36 +275,40 @@ pageScript += `      const res = await fetch("/api/posts?category=daily-show&lim
 pageScript += `      const data = await res.json();`;
 pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
 pageScript += `        document.getElementById("showPetArea").innerHTML = data.data.posts.map(function(p){`;
-pageScript += '          return \'<div class="card"><a href="/post/\' + (p.slug || p.id) + \'"><div style="height:160px;overflow:hidden;border-radius:8px;background:linear-gradient(135deg,var(--bg2),#f5ebe0);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:3rem;">📸</div></a><div class="card-body"><div class="card-title"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></div><div class="card-meta"><span>\' + formatDate(p.created_at) + \'</span></div></div></div>\';';
+pageScript += `          return \`;
+pageScript += `<div class="card">`;
+pageScript += `  <a href="/post/\${p.id}">`;
+pageScript += `    <div style="height:160px;overflow:hidden;border-radius:8px;background:linear-gradient(135deg,var(--bg2),#f5ebe0);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:3rem;">📸</div>`;
+pageScript += `  </a>`;
+pageScript += `  <div class="card-body">`;
+pageScript += `    <div class="card-title"><a href="/post/\${p.id}">\${escapeHtml(p.title)}</a></div>`;
+pageScript += `    <div class="card-meta"><span>\${formatDate(p.created_at)}</span></div>`;
+pageScript += `  </div>`;
+pageScript += `</div>`;
+pageScript += `\``;
 pageScript += `        }).join("");`;
 pageScript += `      } else {`;
-pageScript += '        document.getElementById("showPetArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📸</div><p>暂无晒图</p></div>\';';
+pageScript += `        document.getElementById("showPetArea").innerHTML = \`<div class="empty-state"><div class="empty-icon">📸</div><p>暂无晒图</p></div>\`;`;
 pageScript += `      }`;
 pageScript += `    } catch(e) { console.error(e); }`;
 pageScript += `  }`;
 
 pageScript += `  async function loadNewcomers() {`;
 pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?limit=20");`;
+pageScript += `      const res = await fetch("/api/auth/users?limit=6&sort=newest");`;
 pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
-pageScript += `        const seen = new Set();`;
-pageScript += `        const users = [];`;
-pageScript += `        data.data.posts.forEach(p => {`;
-pageScript += `          if (p.user_id && !seen.has(p.user_id)) {`;
-pageScript += `            seen.add(p.user_id);`;
-pageScript += `            users.push({ username: p.username, created_at: p.created_at });`;
-pageScript += `          }`;
-pageScript += `        });`;
-pageScript += `        if (users.length > 0) {`;
-pageScript += '          document.getElementById("newcomerZone").innerHTML = users.slice(0,6).map(u => \'<div style="text-align:center;padding:16px;background:var(--bg2);border-radius:8px;"><div style="font-size:2rem;">🐱</div><div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-top:6px;">\' + escapeHtml(u.username || \'匿名铲屎官\') + \'</div><div style="font-size:0.75rem;color:var(--muted);">\' + (u.created_at ? formatDate(u.created_at) : \'刚刚加入\') + \'</div></div>\').join("");';
-pageScript += `        } else {`;
-pageScript += '          document.getElementById("newcomerZone").innerHTML = \'<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\';';
-pageScript += `        }`;
+pageScript += `      if (data.code === 200 && data.data && data.data.length > 0) {`;
+pageScript += `        document.getElementById("newcomerZone").innerHTML = data.data.map(u => \`;
+pageScript += `<div style="text-align:center;padding:16px;background:var(--bg2);border-radius:8px;">`;
+pageScript += `  <div style="font-size:2rem;">🐱</div>`;
+pageScript += `  <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-top:6px;">\${escapeHtml(u.username || '匿名铲屎官')}</div>`;
+pageScript += `  <div style="font-size:0.75rem;color:var(--muted);">\${u.created_at ? formatDate(u.created_at) : '刚刚加入'}</div>`;
+pageScript += `</div>`;
+pageScript += `\`).join("");`;
 pageScript += `      } else {`;
-pageScript += '        document.getElementById("newcomerZone").innerHTML = \'<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\';';
+pageScript += `        document.getElementById("newcomerZone").innerHTML = \`<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\`;`;
 pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); document.getElementById("newcomerZone").innerHTML = '<div class="empty-state"><div class="empty-icon">👋</div><p>加载失败，请刷新</p></div>'; }`;
+pageScript += `    } catch(e) { console.error(e); }`;
 pageScript += `  }`;
 
 pageScript += `  async function loadRealtimeStats() {`;
@@ -321,15 +316,7 @@ pageScript += `    try {`;
 pageScript += `      const res = await fetch("/api/posts?limit=1");`;
 pageScript += `      const data = await res.json();`;
 pageScript += `      if (data.code === 200) {`;
-pageScript += `        const total = data.data.total || 0;`;
-pageScript += `        document.getElementById("statUsers").textContent = (total + 1280).toLocaleString();`;
-pageScript += `        document.getElementById("statPosts").textContent = total.toLocaleString();`;
-pageScript += `        document.getElementById("statProfiles").textContent = Math.floor(total * 0.6).toLocaleString();`;
-pageScript += `        document.getElementById("statViews").textContent = (total * 47 + 52000).toLocaleString();`;
-pageScript += `        const todayPosts = data.data.posts.filter(p => { const d = new Date(p.created_at); const t = new Date(); return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate(); }).length;`;
-pageScript += `        document.getElementById("statNewPosts").textContent = todayPosts;`;
 pageScript += `        document.getElementById("statOnline").textContent = Math.floor(Math.random() * 60 + 30);`;
-pageScript += `        document.getElementById("statPending").textContent = Math.floor(Math.random() * 8 + 2);`;
 pageScript += `      }`;
 pageScript += `    } catch(e) { console.error(e); }`;
 pageScript += `  }`;
@@ -345,5 +332,3 @@ pageScript += `  loadRealtimeStats();`;
 
   pageScript += '})();';
   pageScript += '</script>';
-%>
-<%- include('layout', { title: title, bodyClass: 'page-home', body: body, pageScript: pageScript }) %>

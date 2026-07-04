@@ -215,6 +215,50 @@ router.put('/settings', async (req, res) => {
   }
 });
 
+// 审核管理 - 待审核帖子列表
+router.get('/reviews', async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+    const posts = await query(
+      `SELECT p.*, u.username FROM posts p JOIN users u ON p.user_id = u.id
+       WHERE p.review_status = 'pending' ORDER BY p.created_at DESC LIMIT ? OFFSET ?`,
+      [parseInt(limit), parseInt(offset)]
+    );
+    const totalResult = await queryOne("SELECT COUNT(*) as total FROM posts WHERE review_status = 'pending'");
+    success(res, { posts, total: totalResult?.total || 0 });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 审核通过
+router.put('/reviews/:id/approve', async (req, res) => {
+  try {
+    await query('UPDATE posts SET review_status = ? WHERE id = ?', ['approved', req.params.id]);
+    await query('INSERT INTO post_reviews (post_id, reviewer_id, action) VALUES (?, ?, ?)', [req.params.id, req.user.id, 'approved']);
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'approve_post', 'post', req.params.id, req.ip]);
+    success(res, null, '审核通过');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
+// 审核拒绝
+router.put('/reviews/:id/reject', async (req, res) => {
+  try {
+    const { reason } = req.body;
+    await query('UPDATE posts SET review_status = ? WHERE id = ?', ['rejected', req.params.id]);
+    await query('INSERT INTO post_reviews (post_id, reviewer_id, action, reason) VALUES (?, ?, ?, ?)', [req.params.id, req.user.id, 'rejected', reason || '']);
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'reject_post', 'post', req.params.id, req.ip]);
+    success(res, null, '审核已拒绝');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
 // 操作日志
 router.get('/logs', async (req, res) => {
   try {

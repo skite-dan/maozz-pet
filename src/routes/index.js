@@ -7,16 +7,24 @@ const { adminPageAuth } = require('../middlewares/auth');
 router.get('/', async (req, res, next) => {
   try {
     // 获取首页数据
-    const [hotPosts, latestPosts, forumPosts, banners] = await Promise.all([
+    const [hotPosts, latestPosts, forumPosts, banners, stats] = await Promise.all([
       query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' ORDER BY p.view_count DESC, p.like_count DESC LIMIT 6`),
+             WHERE p.status = 'published' AND (p.review_status = 'approved' OR p.review_status IS NULL) ORDER BY p.view_count DESC, p.like_count DESC LIMIT 6`),
       query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' ORDER BY p.created_at DESC LIMIT 8`),
+             WHERE p.status = 'published' AND (p.review_status = 'approved' OR p.review_status IS NULL) ORDER BY p.created_at DESC LIMIT 8`),
       query(`SELECT p.*, u.username, u.avatar FROM posts p JOIN users u ON p.user_id = u.id
-             WHERE p.status = 'published' AND p.post_type = 'forum' ORDER BY p.created_at DESC LIMIT 5`),
+             WHERE p.status = 'published' AND (p.review_status = 'approved' OR p.review_status IS NULL) AND p.post_type = 'forum' ORDER BY p.created_at DESC LIMIT 5`),
       query(`SELECT * FROM banners WHERE status = 1 ORDER BY sort_order ASC, id ASC LIMIT 5`),
+      queryOne(`SELECT
+        (SELECT COUNT(*) FROM posts WHERE status = 'published' AND DATE(created_at) = CURDATE()) as new_posts_today,
+        (SELECT COUNT(*) FROM posts WHERE status = 'published' AND category IN ('cat-disease','dog-disease','medical-help') AND comment_count = 0) as pending_medical`)
     ]);
-    res.render('index', { title: '铲屎官必备 | 毛茸茸星球 — 养宠攻略·宠物问答·萌宠社区', hotPosts, latestPosts, forumPosts, banners });
+    res.render('index', {
+      title: '毛茸茸星球-专业铲屎官宠物交流论坛 | 养猫养狗饲养问诊同城领养',
+      metaDesc: '毛茸茸星球是铲屎官专属宠物社区，分享猫狗饲养干货、宠物疾病问诊、同城遛宠、无偿领养、宠物用品闲置交流，百万养宠经验免费查阅，一站式解决养宠难题。',
+      metaKeywords: '宠物论坛,养猫攻略,养狗教程,猫咪疾病,同城宠物领养,宠物交流社区',
+      hotPosts, latestPosts, forumPosts, banners, stats
+    });
   } catch (err) { next(err); }
 });
 
@@ -51,7 +59,7 @@ router.get('/post/:id', async (req, res, next) => {
     const post = await queryOne(
       `SELECT p.*, u.username, u.avatar, u.avatar_url as user_avatar_url
        FROM posts p JOIN users u ON p.user_id = u.id
-       WHERE p.id = ? AND p.status = 'published'`, [req.params.id]
+       WHERE p.id = ? AND p.status = 'published' AND (p.review_status = 'approved' OR p.review_status IS NULL)`, [req.params.id]
     );
     if (!post) return res.status(404).render('index', { title: '帖子未找到 - 毛茸茸星球' });
 
@@ -77,7 +85,27 @@ router.get('/post/:id', async (req, res, next) => {
       [req.params.id, post.post_type]
     );
 
-    res.render('post', { title: `${post.title} - 毛茸茸星球`, post, media, comments, relatedPosts });
+    // 为SEO生成结构化数据
+    const structuredData = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": post.title,
+      "description": post.content ? post.content.replace(/<[^>]+>/g, '').substring(0, 150) : '',
+      "author": { "@type": "Person", "name": post.username || '匿名' },
+      "datePublished": post.created_at,
+      "dateModified": post.updated_at,
+      "image": media && media.length > 0 ? media[0].media_url : undefined
+    });
+    res.render('post', {
+      title: post.title + ' - 毛茸茸星球',
+      metaDesc: (post.content ? post.content.replace(/<[^>]+>/g, '').substring(0, 150) : ''),
+      metaKeywords: (post.tags ? post.tags : '宠物论坛,养宠攻略') + ',毛茸茸星球',
+      canonicalUrl: (process.env.SITE_URL || 'http://localhost:3000') + '/post/' + post.id,
+      ogType: 'article',
+      ogImage: media && media.length > 0 ? media[0].media_url : undefined,
+      structuredData: structuredData,
+      post, media, comments, relatedPosts
+    });
   } catch (err) { next(err); }
 });
 
@@ -170,5 +198,52 @@ router.use('/api/messages', messageRoutes);
 router.use('/api/upload', uploadRoutes);
 router.use('/api/admin', adminRoutes);
 router.use('/api/tools', toolRoutes);
+
+// SEO - sitemap.xml
+router.get('/sitemap.xml', async (req, res, next) => {
+  try {
+    const posts = await query(`SELECT id, title, updated_at FROM posts WHERE status = 'published' ORDER BY updated_at DESC LIMIT 1000`);
+    const categories = [
+      'cat-feed','dog-feed','exotic-pet','food-review','product-review',
+      'cat-disease','dog-disease','daily-care','medical-help',
+      'city-adoption','city-breed','lost-found','city-walk',
+      'daily-show','pet-contest','fun-topic',
+      'secondhand','pet-transfer','service',
+      'behavior-help','blacklist','rescue'
+    ];
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>';
+    xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/forum</loc><changefreq>daily</changefreq><priority>0.9</priority></url>';
+    xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/knowledge</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>';
+    xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/stories</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>';
+    xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/tools</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>';
+    categories.forEach(cat => {
+      xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/forum?category=' + encodeURIComponent(cat) + '</loc><changefreq>daily</changefreq><priority>0.8</priority></url>';
+    });
+    posts.forEach(p => {
+      xml += '<url><loc>' + (process.env.SITE_URL || 'http://localhost:3000') + '/post/' + p.id + '</loc><lastmod>' + new Date(p.updated_at).toISOString().split('T')[0] + '</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>';
+    });
+    xml += '</urlset>';
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) { next(err); }
+});
+
+// SEO - robots.txt
+router.get('/robots.txt', (req, res) => {
+  const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
+  res.type('text/plain');
+  res.send(
+    'User-agent: *\n' +
+    'Allow: /\n' +
+    'Disallow: /admin\n' +
+    'Disallow: /api/\n' +
+    'Disallow: /login\n' +
+    'Disallow: /register\n' +
+    'Disallow: /uploads/\n' +
+    'Sitemap: ' + siteUrl + '/sitemap.xml\n'
+  );
+});
 
 module.exports = router;

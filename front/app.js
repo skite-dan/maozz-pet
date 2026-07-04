@@ -47,6 +47,7 @@ app.use((req, res, next) => {
 });
 
 // 静态资源
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '..', 'src', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'src', 'public', 'uploads')));
 
@@ -66,7 +67,13 @@ app.use((req, res) => {
 // 错误处理
 app.use((err, req, res, next) => {
   console.error('[FRONT ERROR]', err);
-  res.status(500).render('error', { title: '服务器错误 - 毛茸茸星球', error: config.nodeEnv === 'development' ? err : {} });
+  const statusCode = err.status || 500;
+  res.status(statusCode).render('error', {
+    title: `${statusCode} - 毛茸茸星球`,
+    errorCode: statusCode,
+    errorMessage: statusCode === 404 ? '页面未找到' : '服务器开小差了，请稍后再试',
+    errorDetail: config.nodeEnv === 'development' ? err.message : ''
+  });
 });
 
 module.exports = { app };

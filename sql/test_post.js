@@ -1,10 +1,10 @@
-<%
+
   var body = '';
+
   body += '<div class="breadcrumb">';
   body += '  <a href="/">首页</a> <span class="sep">/</span>';
-  body += '  <a href="/forum" style="color:var(--muted);">论坛</a> <span class="sep">/</span>';
-  body += '  <a href="/forum?category=" id="breadcrumbCategory" style="color:var(--muted);display:none;"></a>';
-  body += '  <span class="sep" id="breadcrumbSep3" style="display:none;">/</span>';
+  body += '  <a href="/forum" id="breadcrumbForum">论坛</a> <span class="sep" id="breadcrumbSep2">/</span>';
+  body += '  <a href="/forum" id="breadcrumbCategory" style="display:none;"></a> <span class="sep" id="breadcrumbSep3" style="display:none;">/</span>';
   body += '  <span class="current" id="breadcrumbTitle">帖子详情</span>';
   body += '</div>';
 
@@ -49,82 +49,86 @@
   var pageScript = '';
   pageScript += '<script>';
   pageScript += '(function() {';
-  pageScript += '  var postId = window.location.pathname.split("/post/")[1];';
-  pageScript += '  var postData = null;';
-  pageScript += '  var catMap = {"cat-feed":"猫咪饲养","dog-feed":"狗狗饲养","exotic-pet":"小众宠物","food-review":"粮食测评","product-review":"用品测评","cat-disease":"猫咪疾病","dog-disease":"狗狗疾病","daily-care":"日常护理","medical-help":"就医求助","city-adoption":"同城无偿领养","city-breed":"同城配种","lost-found":"寻宠启事","city-walk":"同城遛宠聚会","daily-show":"萌宠日常","pet-contest":"萌宠评选大赛","fun-topic":"趣味养宠话题","secondhand":"宠物用品闲置","pet-transfer":"家养宠物转让","service":"上门寄养/洗护预约","behavior-help":"养宠行为求助","blacklist":"宠物店/粮品避雷","rescue":"流浪宠物救助"};';
+  pageScript += '  const postId = window.location.pathname.split("/post/")[1];';
+  pageScript += '  let postData = null;';
   pageScript += '  async function loadPost() {';
   pageScript += '    try {';
-  pageScript += '      var res = await fetch("/api/posts/" + postId);';
-  pageScript += '      var data = await res.json();';
+  pageScript += '      const res = await fetch("/api/posts/" + postId);';
+  pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200) { postData = data.data.post; renderPost(data.data); }';
+      let reviewHtml = "";
+      if (post.review_status === "pending") {
+        reviewHtml = '<div style="background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.9rem;color:#856404;">⏳ 该帖子正在审核中，审核通过后将对外展示。</div>';
+      } else if (post.review_status === "rejected") {
+        reviewHtml = '<div style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.9rem;color:#c0392b;">❌ 该帖子未通过审核，请修改后重新提交。</div>';
+      }
   pageScript += '      else { document.getElementById("postDetail").innerHTML = \'<div class="empty-state"><div class="empty-icon">😕</div><p>帖子不存在或已被删除</p></div>\'; }';
   pageScript += '    } catch(e) { console.error(e); }';
   pageScript += '  }';
   pageScript += '  function renderPost(data) {';
-  pageScript += '    var post = data.post;';
-  pageScript += '    var catName = catMap[post.category] || "";';
-  pageScript += '    var media = data.media || [];';
-  pageScript += '    document.getElementById("breadcrumbTitle").textContent = post.title;';
-  pageScript += '    if (post.category) {';
-  pageScript += '      var catEl = document.getElementById("breadcrumbCategory");';
-  pageScript += '      catEl.textContent = catName || post.category;';
-  pageScript += '      catEl.href = "/forum?category=" + encodeURIComponent(post.category);';
-  pageScript += '      catEl.style.display = "";';
-  pageScript += '      document.getElementById("breadcrumbSep3").style.display = "";';
-  pageScript += '    }';
+  pageScript += '    const post = data.post;';
+  pageScript += '    const media = data.media || [];';
+  pageScript += '    document.getElementById("breadcrumbTitle").textContent = post.title;
+    if (post.category) {
+      const catMap = {
+        'cat-feed':'猫咪饲养','dog-feed':'狗狗饲养','exotic-pet':'小众宠物','food-review':'粮食测评','product-review':'用品测评',
+        'cat-disease':'猫咪疾病','dog-disease':'狗狗疾病','daily-care':'日常护理','medical-help':'就医求助',
+        'city-adoption':'同城无偿领养','city-breed':'同城配种','lost-found':'寻宠启事','city-walk':'同城遛宠聚会',
+        'daily-show':'萌宠日常','pet-contest':'萌宠评选大赛','fun-topic':'趣味养宠话题',
+        'secondhand':'宠物用品闲置','pet-transfer':'家养宠物转让','service':'上门寄养/洗护预约',
+        'behavior-help':'养宠行为求助','blacklist':'宠物店/粮品避雷','rescue':'流浪宠物救助'
+      };
+      const catName = catMap[post.category] || post.category;
+      const catEl = document.getElementById("breadcrumbCategory");
+      catEl.textContent = catName;
+      catEl.href = '/forum?category=' + encodeURIComponent(post.category);
+      catEl.style.display = '';
+      document.getElementById("breadcrumbSep3").style.display = '';
+    }';
   pageScript += '    document.title = post.title + " - 毛茸茸星球";';
-  pageScript += '    var avatarHtml = (post.user_avatar_url || post.avatar)';
+  pageScript += '    const avatarHtml = (post.user_avatar_url || post.avatar)';
   pageScript += '      ? \'<div class="author-avatar">\' + (post.user_avatar_url ? \'<img src="\' + post.user_avatar_url + \'">\' : post.avatar) + \'</div>\'';
   pageScript += '      : \'<div class="author-avatar">🐱</div>\';';
-  pageScript += '    var mediaHtml = "";';
+  pageScript += '    let mediaHtml = "";';
   pageScript += '    if (media.length > 0) {';
-  pageScript += '      mediaHtml = "<div class=\\"post-media\\">";';
-  pageScript += '      media.forEach(function(m) {';
-  pageScript += '        if (m.media_type === "image") mediaHtml += \'<img src="\' + m.media_url + \'" alt="" loading="lazy">\';';
-  pageScript += '        else if (m.media_type === "video") mediaHtml += \'<video src="\' + m.media_url + \'" controls></video>\';';
+  pageScript += '      mediaHtml = \'<div class="post-media">\';';
+  pageScript += '      media.forEach(m => {';
+  pageScript += '        if (m.media_type === "image") mediaHtml += \'<img src="\' + m.media_url + \'" alt="' + escapeHtml(post.title).substring(0,30) + ' 实拍" loading="lazy" onload="this.classList.add('loaded')">\';';
+  pageScript += '        else if (m.media_type === "video") mediaHtml += \'<video src="\' + m.media_url + \'" controls preload="metadata"></video>\';';
   pageScript += '      });';
   pageScript += '      mediaHtml += "</div>";';
   pageScript += '    }';
-  pageScript += '    var tagsHtml = "";';
+  pageScript += '    let tagsHtml = "";';
   pageScript += '    if (post.tags) {';
-  pageScript += '      var tags = post.tags.split(",");';
-  pageScript += '      tagsHtml = tags.map(function(t) { return \'<a href="/search?keyword=\' + encodeURIComponent(t.trim()) + \'" class="tag">\' + t.trim() + \'</a>\'; }).join(" ");';
+  pageScript += '      const tags = post.tags.split(",");';
+  pageScript += '      tagsHtml = tags.map(t => \'<a href="/search?keyword=\' + encodeURIComponent(t.trim()) + \'" class="tag">\' + t.trim() + \'</a>\').join(" ");';
   pageScript += '      document.getElementById("postTags").innerHTML = tagsHtml;';
   pageScript += '    }';
   pageScript += '    document.getElementById("likeArea").innerHTML = \'<button class="like-btn" id="likeBtn" onclick="toggleLike()">❤️ <span>\' + (post.like_count || 0) + \'</span></button>\';';
-  pageScript += '    var reviewHtml = "";';
-  pageScript += '    if (post.review_status === "pending") {';
-  pageScript += '      reviewHtml = "<div style=\\"background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.9rem;color:#856404;\\">⏳ 该帖子正在审核中，预计2小时内完成审核</div>";';
-  pageScript += '    }';
-  pageScript += '    var html = reviewHtml;';
-  pageScript += '    html += "<div class=\\"post-header\\">";';
-  pageScript += '    html += "<h1 class=\\"post-title\\">" + escapeHtml(post.title) + "</h1>";';
-  pageScript += '    html += "<div class=\\"post-meta\\">";';
-  pageScript += '    html += "<div class=\\"author-info\\">" + avatarHtml + "<span class=\\"post-author\\">" + (post.username || "匿名") + "</span></div>";';
-  pageScript += '    html += "<span>" + formatDate(post.created_at) + "</span>";';
-  pageScript += '    html += "<span>👁 " + (post.view_count || 0) + " 浏览</span>";';
-  pageScript += '    html += "<span>💬 " + (post.comment_count || 0) + " 评论</span>";';
-  pageScript += '    if (post.category) html += "<span class=\\"tag\\">" + (catName || post.category) + "</span>";';
-  pageScript += '    if (post.is_pinned) html += "<span class=\\"tag tag-purple\\">置顶</span>";';
-  pageScript += '    html += "</div></div>";';
-  pageScript += '    html += mediaHtml;';
-  pageScript += '    html += "<div class=\\"post-body\\">" + (post.content || "") + "</div>";';
-  pageScript += '    if (tagsHtml) html += "<div style=\\"margin-top:16px;\\">" + tagsHtml + "</div>";';
-  pageScript += '    document.getElementById("postDetail").innerHTML = html;';
+  pageScript += '    document.getElementById("postDetail").innerHTML =';
+  pageScript += '      \'<h1 class="post-title">\' + escapeHtml(post.title) + \'</h1>\' +';
+  pageScript += '      \'<div class="post-meta">\' +';
+  pageScript += '        \'<div class="author-info">\' + avatarHtml + \'<span class="post-author">\' + (post.username || "匿名") + \'</span></div>\' +';
+  pageScript += '        \'<span>\' + formatDate(post.created_at) + \'</span>\' +';
+  pageScript += '        \'<span>👁 \' + (post.view_count || 0) + \' 浏览</span>\' +';
+  pageScript += '        \'<span>💬 \' + (post.comment_count || 0) + \' 评论</span>\' +';
+  pageScript += '      \'</div>\' + mediaHtml +';
+  pageScript += '      \'<div class="post-body">\' + (post.content || "") + \'</div>\' +';
+  pageScript += '      (tagsHtml ? \'<div style="margin-top:16px;">\' + tagsHtml + \'</div>\' : "");';
   pageScript += '    renderComments(data.comments);';
   pageScript += '    loadRelatedPosts(post.post_type);';
   pageScript += '  }';
   pageScript += '  function renderComments(comments) {';
-  pageScript += '    var list = document.getElementById("commentList");';
+  pageScript += '    const list = document.getElementById("commentList");';
   pageScript += '    document.getElementById("commentCount").textContent = "(" + (comments ? comments.length : 0) + ")";';
   pageScript += '    if (!comments || comments.length === 0) { list.innerHTML = \'<div class="empty-state"><div class="empty-icon">💭</div><p>暂无评论，来说两句吧~</p></div>\'; return; }';
-  pageScript += '    list.innerHTML = comments.map(function(c) { return renderCommentItem(c); }).join("");';
+  pageScript += '    list.innerHTML = comments.map(c => renderCommentItem(c)).join("");';
   pageScript += '  }';
   pageScript += '  function renderCommentItem(c) {';
-  pageScript += '    var avatarHtml = c.avatar ? (c.avatar.startsWith("http") ? \'<img src="\' + c.avatar + \'">\' : c.avatar) : "🐱";';
-  pageScript += '    var repliesHtml = "";';
+  pageScript += '    const avatarHtml = c.avatar ? (c.avatar.startsWith("http") ? \'<img src="\' + c.avatar + \'">\' : c.avatar) : "🐱";';
+  pageScript += '    let repliesHtml = "";';
   pageScript += '    if (c.replies && c.replies.length > 0) {';
-  pageScript += '      repliesHtml = \'<div class="comment-replies">\' + c.replies.map(function(r) { return renderCommentItem(r); }).join("") + \'</div>\';';
+  pageScript += '      repliesHtml = \'<div class="comment-replies">\' + c.replies.map(r => renderCommentItem(r)).join("") + \'</div>\';';
   pageScript += '    }';
   pageScript += '    return \'<div class="comment-item">\' +';
   pageScript += '      \'<div class="comment-avatar">\' + avatarHtml + \'</div>\' +';
@@ -135,38 +139,38 @@
   pageScript += '        repliesHtml + \'</div></div>\';';
   pageScript += '  }';
   pageScript += '  window.submitComment = async function() {';
-  pageScript += '    var token = localStorage.getItem("token");';
+  pageScript += '    const token = localStorage.getItem("token");';
   pageScript += '    if (!token) { openModal("loginModal"); return; }';
-  pageScript += '    var content = document.getElementById("commentContent").value.trim();';
+  pageScript += '    const content = document.getElementById("commentContent").value.trim();';
   pageScript += '    if (!content) { showToast("请输入评论内容", "error"); return; }';
   pageScript += '    try {';
-  pageScript += '      var res = await authFetch("/api/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ post_id: postId, content: content }) });';
-  pageScript += '      var data = await res.json();';
+  pageScript += '      const res = await authFetch("/api/comments", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ post_id: postId, content }) });';
+  pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 201 || data.code === 200) { showToast("评论成功", "success"); document.getElementById("commentContent").value = ""; loadComments(); }';
   pageScript += '      else { showToast(data.message || "评论失败", "error"); }';
   pageScript += '    } catch(e) { showToast("网络错误", "error"); }';
   pageScript += '  };';
   pageScript += '  async function loadComments() {';
   pageScript += '    try {';
-  pageScript += '      var res = await fetch("/api/comments/post/" + postId);';
-  pageScript += '      var data = await res.json();';
+  pageScript += '      const res = await fetch("/api/comments/post/" + postId);';
+  pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200) renderComments(data.data);';
   pageScript += '    } catch(e) { console.error(e); }';
   pageScript += '  }';
   pageScript += '  window.replyTo = function(username) {';
-  pageScript += '    var textarea = document.getElementById("commentContent");';
+  pageScript += '    const textarea = document.getElementById("commentContent");';
   pageScript += '    textarea.value = "@" + username + " ";';
   pageScript += '    textarea.focus();';
   pageScript += '    textarea.scrollIntoView({ behavior: "smooth", block: "center" });';
   pageScript += '  };';
   pageScript += '  window.toggleLike = async function() {';
-  pageScript += '    var token = localStorage.getItem("token");';
+  pageScript += '    const token = localStorage.getItem("token");';
   pageScript += '    if (!token) { openModal("loginModal"); return; }';
   pageScript += '    try {';
-  pageScript += '      var res = await authFetch("/api/posts/" + postId + "/like", { method: "POST" });';
-  pageScript += '      var data = await res.json();';
+  pageScript += '      const res = await authFetch("/api/posts/" + postId + "/like", { method: "POST" });';
+  pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200) {';
-  pageScript += '        var btn = document.getElementById("likeBtn");';
+  pageScript += '        const btn = document.getElementById("likeBtn");';
   pageScript += '        if (data.data.liked) { btn.classList.add("liked"); postData.like_count++; }';
   pageScript += '        else { btn.classList.remove("liked"); postData.like_count--; }';
   pageScript += '        btn.querySelector("span").textContent = postData.like_count;';
@@ -176,19 +180,16 @@
   pageScript += '  };';
   pageScript += '  async function loadRelatedPosts(type) {';
   pageScript += '    try {';
-  pageScript += '      var res = await fetch("/api/posts?type=" + type + "&limit=8");';
-  pageScript += '      var data = await res.json();';
+  pageScript += '      const res = await fetch("/api/posts?type=" + type + "&limit=8");';
+  pageScript += '      const data = await res.json();';
   pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
-  pageScript += '        var filtered = data.data.posts.filter(function(p) { return p.id != postId; }).slice(0, 6);';
-  pageScript += '        document.getElementById("relatedPosts").innerHTML = filtered.map(function(p, i) {';
-  pageScript += '          return \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></span></div>\';';
-  pageScript += '        }).join("");';
+  pageScript += '        const filtered = data.data.posts.filter(p => p.id != postId).slice(0, 6);';
+  pageScript += '        document.getElementById("relatedPosts").innerHTML = filtered.map((p, i) =>';
+  pageScript += '          \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + p.id + \'">\' + escapeHtml(p.title) + \'</a></span></div>\'';
+  pageScript += '        ).join("");';
   pageScript += '      } else { document.getElementById("relatedPosts").innerHTML = \'<p style="font-size:0.88rem;color:var(--muted);">暂无相关文章</p>\'; }';
   pageScript += '    } catch(e) { console.error(e); }';
   pageScript += '  }';
   pageScript += '  loadPost();';
   pageScript += '})();';
-  pageScript += '<\/script>';
-%>
-
-<%- include('layout', { title: '帖子详情 - 毛茸茸星球', bodyClass: 'page-post', body: body, pageScript: pageScript }) %>
+  pageScript += '</script>';

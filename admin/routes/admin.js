@@ -78,6 +78,29 @@ router.get('/users', async (req, res) => {
   }
 });
 
+
+// 编辑用户信息
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    if (!username || !username.trim()) return error(res, 400, '用户名不能为空');
+    const trimmed = username.trim();
+    if (trimmed.length < 2 || trimmed.length > 20) return error(res, 400, '用户名长度需在2-20个字符之间');
+    const existing = await queryOne('SELECT id FROM users WHERE username = ? AND id != ?', [trimmed, req.params.id]);
+    if (existing) return error(res, 400, '该用户名已存在');
+    if (email) {
+      await query('UPDATE users SET username = ?, email = ? WHERE id = ?', [trimmed, email.trim(), req.params.id]);
+    } else {
+      await query('UPDATE users SET username = ? WHERE id = ?', [trimmed, req.params.id]);
+    }
+    await query('INSERT INTO admin_logs (admin_id, action, target_type, target_id, ip) VALUES (?, ?, ?, ?, ?)',
+      [req.user.id, 'update_user', 'user', req.params.id, req.ip]);
+    success(res, null, '用户信息更新成功');
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
 // 禁用/启用用户
 router.put('/users/:id/status', async (req, res) => {
   try {

@@ -11,7 +11,7 @@ router.get('/', optionalAuth, async (req, res) => {
     const { page = 1, limit = 10, type, category, sort = 'latest', keyword } = req.query;
     const offset = (page - 1) * limit;
 
-    let where = 'p.status = "published"';
+    let where = 'p.status = "published" AND (p.review_status = "approved" OR p.review_status IS NULL)';
     let params = [];
 
     if (type) { where += ' AND p.post_type = ?'; params.push(type); }
@@ -85,13 +85,24 @@ router.get('/:id', optionalAuth, async (req, res) => {
 // 创建帖子
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, content, post_type = 'forum', category, tags } = req.body;
+    const { title, content, post_type = 'forum', category, tags, city, post_template } = req.body;
     if (!title || !content) return error(res, 400, '标题和内容不能为空');
 
+    // 交易/活体/领养帖强制审核
+    const reviewCategories = ['secondhand', 'pet-transfer', 'service', 'city-adoption', 'city-breed', 'pet-transfer'];
+    const reviewStatus = reviewCategories.includes(category) ? 'pending' : 'approved';
+
     const result = await query(
-      'INSERT INTO posts (user_id, title, content, post_type, category, tags) VALUES (?, ?, ?, ?, ?, ?)',
-      [req.user.id, title, content, post_type, category, tags]
+      'INSERT INTO posts (user_id, title, content, post_type, category, tags, city, post_template, review_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [req.user.id, title, content, post_type, category, tags, city, post_template, reviewStatus]
     );
+
+    // 发帖奖励积分
+    try {
+      await query('UPDATE users SET points = points + 20 WHERE id = ?', [req.user.id]);
+      const userInfo = await queryOne('SELECT points FROM users WHERE id = ?', [req.user.id]);
+      await query('INSERT INTO user_points_log (user_id, action, points, balance, description) VALUES (?, ?, ?, ?, ?)', [req.user.id, 'create_post', 20, userInfo.points, '发布帖子奖励']);
+    } catch(e) { console.error('Post points error:', e); }
 
     // 如果有媒体文件URL（从前端上传后获取）
     if (req.body.media && req.body.media.length > 0) {
