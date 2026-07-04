@@ -4,8 +4,10 @@ services:
   maozz-pet:
     build: .
     container_name: maozz-pet-app
-    network_mode: host
     restart: always
+    ports:
+      - "3000:3000"
+      - "3001:3001"
     volumes:
       # 挂载环境配置文件（只读）
       - /www/wwwroot/maozz-pet/.env:/app/.env:ro
