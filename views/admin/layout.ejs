@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,8 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
   <link href="https://unpkg.com/@wangeditor/editor@latest/dist/css/style.css" rel="stylesheet">
   <script src="https://unpkg.com/@wangeditor/editor@latest/dist/index.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.min.js"></script>
   <style>
     /* ========== Reset & Base ========== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1088,6 +1090,37 @@
         gap: 12px;
       }
     }
+    /* ========== Template Selector ========== */
+    .template-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .template-btn {
+      padding: 6px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      background: #fff;
+      color: #475569;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .template-btn:hover {
+      border-color: #ff6b35;
+      color: #ff6b35;
+    }
+    .template-btn.active {
+      background: #ff6b35;
+      color: #fff;
+      border-color: #ff6b35;
+    }
+    .form-row {
+      display: flex;
+      gap: 16px;
+    }
+
   </style>
 </head>
 <body>
