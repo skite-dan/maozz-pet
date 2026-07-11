@@ -4,11 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= typeof title !== 'undefined' ? title : '毛茸茸星球-专业铲屎官宠物交流论坛 | 养猫养狗饲养问诊同城领养' %></title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐾</text></svg>">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
   <link rel="canonical" href="<%= typeof canonicalUrl !== 'undefined' ? canonicalUrl : (siteUrl || '') + req.path %>">
   <meta name="description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : '毛茸茸星球是铲屎官专属宠物社区，分享猫狗饲养干货、宠物疾病问诊、同城遛宠、无偿领养、宠物用品闲置交流，百万养宠经验免费查阅，一站式解决养宠难题。' %>">
   <meta name="keywords" content="<%= typeof metaKeywords !== 'undefined' ? metaKeywords : '宠物论坛,养猫攻略,养狗教程,猫咪疾病,同城宠物领养,宠物交流社区' %>">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="<%= typeof metaRobots !== 'undefined' ? metaRobots : 'index, follow' %>">
   <meta property="og:site_name" content="毛茸茸星球">
   <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : '毛茸茸星球' %>">
   <meta property="og:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : '毛茸茸星球是铲屎官专属宠物社区，分享猫狗饲养干货、宠物疾病问诊、同城遛宠、无偿领养、宠物用品闲置交流。' %>">
@@ -17,10 +18,19 @@
   <% if (typeof ogImage !== 'undefined' && ogImage) { %>
   <meta property="og:image" content="<%= ogImage %>">
   <% } %>
+  <% if (!(typeof ogImage !== 'undefined' && ogImage)) { %>
+  <meta property="og:image" content="<%= (typeof siteUrl !== 'undefined' ? siteUrl : '') %>/images/og-default.jpg">
+  <% } %>
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title : '毛茸茸星球' %>">
   <meta name="twitter:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : '专为铲屎官打造的宠物社区' %>">
+  <meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : ((typeof siteUrl !== 'undefined' ? siteUrl : '') + '/images/og-default.jpg') %>">
   <link rel="sitemap" type="application/xml" href="<%= siteUrl || '' %>/sitemap.xml">
+  <!-- Google Search Console 验证 (请替换为实际验证码) -->
+  <meta name="google-site-verification" content="YOUR_GSC_VERIFICATION_CODE_HERE">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -49,7 +59,11 @@
   <!-- ========== Header ========== -->
   <header class="header">
     <div class="container">
+      <% if (typeof isHome !== 'undefined' && isHome) { %>
+      <h1 class="logo"><a href="/">🐾 <span>毛茸茸</span>星球</a></h1>
+      <% } else { %>
       <a href="/" class="logo">🐾 <span>毛茸茸</span>星球</a>
+      <% } %>
 
       <nav class="nav">
         <div class="nav-item">
@@ -137,6 +151,7 @@
       <div class="mn-divider"></div>
       <a class="mn-link" href="/privacy">隐私政策</a>
       <a class="mn-link" href="/terms">使用条款</a>
+      <a class="mn-link" href="/cookie-policy">Cookie政策</a>
     </div>
   </nav>
 
@@ -166,6 +181,7 @@
           <a href="/privacy">隐私政策</a>
           <a href="/terms">使用条款</a>
           <a href="/disclaimer">免责声明</a>
+          <a href="/cookie-policy">Cookie政策</a>
         </div>
         <div class="footer-col">
           <h4>工具</h4>
@@ -984,7 +1000,7 @@
     function renderPostItem(post) {
       const images = post.images ? post.images.split(',') : [];
       const thumbHtml = images.length > 0
-        ? '<img class="post-thumb" src="' + images[0] + '" alt="" loading="lazy">'
+        ? '<img class="post-thumb" src="' + images[0] + '" alt="' + escapeHtml(post.title || '帖子图片') + '" loading="lazy">'
         : '';
       const avatarHtml = (post.user_avatar_url || post.avatar)
         ? '<div class="post-avatar">' + (post.user_avatar_url ? '<img src="' + post.user_avatar_url + '">' : post.avatar) + '</div>'
@@ -1012,8 +1028,8 @@
     function renderArticleCard(post) {
       const images = post.images ? post.images.split(',') : [];
       const imgHtml = images.length > 0
-        ? '<img class="card-img" src="' + images[0] + '" alt="" loading="lazy">'
-        : '<div class="card-img" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--rule);">🐾</div>';
+        ? '<img class="card-img" src="' + images[0] + '" alt="' + escapeHtml(post.title || '帖子图片') + '" loading="lazy">'
+        : '<div class="card-img" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--rule);" role="img" aria-label="暂无图片">🐾</div>';
       return '<div class="card">' +
         '<a href="/post/' + (post.slug || post.id) + '">' + imgHtml + '</a>' +
         '<div class="card-body">' +

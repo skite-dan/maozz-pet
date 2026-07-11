@@ -78,6 +78,18 @@
   body += '      <h2 class="section-title"><span class="icon">&#x2B50;</span> 精选推荐 <a href="/forum?sort=likes" class="more">查看更多 →</a></h2>';
   body += '      <div class="featured-article" id="featuredArea">';
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '        <noscript>';
+  if (hotPosts && hotPosts.length > 0) {
+    for (var fi = 0; fi < Math.min(hotPosts.length, 2); fi++) {
+      var fp = hotPosts[fi];
+      var fImg = fp.images && fp.images.split(',')[0] ? fp.images.split(',')[0] : '';
+      body += '<a href="/post/' + (fp.slug || fp.id) + '" class="featured-link">';
+      body += '<div class="featured-item">';
+      if (fImg) body += '<img src="' + fImg + '" alt="' + (fp.title || '') + '" loading="lazy">';
+      body += '<div class="featured-info"><h3>' + (fp.title || '') + '</h3><p>' + (fp.username || '') + ' · ' + (fp.created_at ? new Date(fp.created_at).toLocaleDateString('zh-CN') : '') + '</p></div></div></a>';
+    }
+  }
+  body += '        </noscript>';
   body += '      </div>';
   body += '    </section>';
 
@@ -86,6 +98,17 @@
   body += '      <h2 class="section-title"><span class="icon">&#x1F4DD;</span> 最新内容 <a href="/forum" class="more">查看更多 →</a></h2>';
   body += '      <div class="article-grid" id="latestArea">';
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '        <noscript>';
+  if (latestPosts && latestPosts.length > 0) {
+    for (var li = 0; li < Math.min(latestPosts.length, 6); li++) {
+      var lp = latestPosts[li];
+      var lImg = lp.images && lp.images.split(',')[0] ? lp.images.split(',')[0] : '';
+      body += '<div class="card"><a href="/post/' + (lp.slug || lp.id) + '">';
+      if (lImg) body += '<div class="card-img"><img src="' + lImg + '" alt="' + (lp.title || '') + '" loading="lazy"></div>';
+      body += '<div class="card-body"><div class="card-title">' + (lp.title || '') + '</div><div class="card-meta">' + (lp.username || '') + '</div></div></a></div>';
+    }
+  }
+  body += '        </noscript>';
   body += '      </div>';
   body += '    </section>';
 
@@ -94,6 +117,14 @@
   body += '      <h2 class="section-title"><span class="icon">&#x1F4AC;</span> 热门讨论 <a href="/forum?sort=comments" class="more">查看更多 →</a></h2>';
   body += '      <div class="post-list" id="hotForumArea">';
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
+  body += '        <noscript>';
+  if (forumPosts && forumPosts.length > 0) {
+    for (var hi = 0; hi < Math.min(forumPosts.length, 8); hi++) {
+      var hp = forumPosts[hi];
+      body += '<div class="post-item"><a href="/post/' + (hp.slug || hp.id) + '"><div class="post-title">' + (hp.title || '') + '</div><div class="post-meta">' + (hp.username || '') + ' · ' + (hp.created_at ? new Date(hp.created_at).toLocaleDateString('zh-CN') : '') + ' · <span class="views">' + (hp.view_count || 0) + '浏览</span></div></a></div>';
+    }
+  }
+  body += '        </noscript>';
   body += '      </div>';
   body += '    </section>';
 
@@ -102,6 +133,7 @@ body += `    <section>`;
 body += `      <h2 class="section-title"><span class="icon">📊</span> 本周热帖 <a href="/forum?sort=weekly_views" class="more">查看更多 →</a></h2>`;
 body += `      <div class="post-list" id="weeklyHotArea">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
+body += `        <noscript><p style="color:var(--muted);padding:20px;text-align:center;">请启用JavaScript以查看此内容</p></noscript>`;
 body += `      </div>`;
 body += `    </section>`;
 
@@ -109,6 +141,7 @@ body += `    <section>`;
 body += `      <h2 class="section-title"><span class="icon">📍</span> 同城动态 <a href="/forum?sort=city_latest" class="more">查看更多 →</a></h2>`;
 body += `      <div class="post-list" id="cityArea">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
+body += `        <noscript><p style="color:var(--muted);padding:20px;text-align:center;">请启用JavaScript以查看此内容</p></noscript>`;
 body += `      </div>`;
 body += `    </section>`;
 
@@ -116,6 +149,7 @@ body += `    <section>`;
 body += `      <h2 class="section-title"><span class="icon">📸</span> 萌宠晒图 <a href="/forum?category=daily-show" class="more">查看更多 →</a></h2>`;
 body += `      <div class="article-grid" id="showPetArea">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
+body += `        <noscript><p style="color:var(--muted);padding:20px;text-align:center;">请启用JavaScript以查看此内容</p></noscript>`;
 body += `      </div>`;
 body += `    </section>`;
 
@@ -123,6 +157,7 @@ body += `    <section>`;
 body += `      <h2 class="section-title"><span class="icon">👋</span> 新人报到</h2>`;
 body += `      <div id="newcomerZone" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px;">`;
 body += `        <div class="loading"><div class="spinner"></div>加载中...</div>`;
+body += `        <noscript><p style="color:var(--muted);padding:20px;text-align:center;">请启用JavaScript以查看此内容</p></noscript>`;
 body += `      </div>`;
 body += `    </section>`;
 

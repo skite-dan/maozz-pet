@@ -1,0 +1,104 @@
+<%
+  var body = '';
+  body += '<div class="breadcrumb">';
+  body += '  <a href="/">首页</a> <span class="sep">/</span>';
+  body += '  <span class="current">Cookie 政策</span>';
+  body += '</div>';
+
+  body += '<div class="static-page">';
+  body += '  <h2>Cookie 政策</h2>';
+  body += '  <p>毛茸茸星球（maozz.online，以下简称"本站"）非常重视您的隐私体验。本 Cookie 政策旨在帮助您了解本站如何使用 Cookie 及相关技术，以及您如何管理这些设置。</p>';
+  body += '  <p>本 Cookie 政策最后更新日期：2026年7月11日</p>';
+
+  body += '  <h2>1. 什么是 Cookie</h2>';
+  body += '  <p>Cookie 是当您访问网站时，网站服务器通过浏览器存储在您设备（电脑、手机或平板）上的小型文本文件。Cookie 能帮助网站记住您的偏好设置、登录状态和浏览行为，从而为您提供更优质的访问体验。</p>';
+  body += '  <p>Cookie 本身不会在您的设备上运行程序或传播病毒。Cookie 仅由发出它的域名服务器读取，其他网站无法访问本站设置的 Cookie。</p>';
+
+  body += '  <h2>2. 本站使用的 Cookie 类型</h2>';
+  body += '  <p>本站使用以下几类 Cookie，以保障网站正常运行并提升您的使用体验：</p>';
+
+  body += '  <h3>2.1 必要 Cookie（Essential Cookies）</h3>';
+  body += '  <p>这类 Cookie 是网站正常运作所必需的，无法关闭。它们用于：</p>';
+  body += '  <ul>';
+  body += '    <li><strong>会话管理</strong>：维持您的登录状态，确保在浏览不同页面时无需重复登录</li>';
+  body += '    <li><strong>身份认证</strong>：通过 JWT Token 识别您的用户身份，保障账户安全</li>';
+  body += '    <li><strong>安全防护</strong>：防止跨站请求伪造（CSRF）等安全威胁</li>';
+  body += '    <li><strong>负载均衡</strong>：在服务器集群中分配请求，确保网站稳定运行</li>';
+  body += '  </ul>';
+
+  body += '  <h3>2.2 分析 Cookie（Analytics Cookies）</h3>';
+  body += '  <p>这类 Cookie 用于收集关于访问者如何使用本站的匿名统计数据，帮助我们了解用户行为以持续优化网站内容和服务：</p>';
+  body += '  <ul>';
+  body += '    <li><strong>Google Analytics</strong>：分析页面访问量、用户来源、停留时间、跳出率等数据</li>';
+  body += '    <li>这些数据均为匿名汇总数据，不会识别您的个人身份</li>';
+  body += '    <li>帮助我们发现网站性能瓶颈和用户需求，持续改善用户体验</li>';
+  body += '  </ul>';
+
+  body += '  <h3>2.3 广告 Cookie（Advertising Cookies）</h3>';
+  body += '  <p>这类 Cookie 用于向您展示与您兴趣相关的广告，并衡量广告投放效果：</p>';
+  body += '  <ul>';
+  body += '    <li><strong>Google AdSense</strong>：根据您的浏览历史和兴趣偏好展示个性化广告</li>';
+  body += '    <li>通过 DART Cookie 记录您在本站及其他网站上的浏览行为</li>';
+  body += '    <li>帮助广告主了解广告效果，同时确保您看到的广告更加相关</li>';
+  body += '  </ul>';
+
+  body += '  <h2>3. 第三方 Cookie 披露</h2>';
+  body += '  <p>本站使用了以下第三方服务，这些服务可能会在您的设备上设置 Cookie：</p>';
+  body += '  <ul>';
+  body += '    <li><strong>Google AdSense</strong>：Google 作为第三方广告供应商，使用 Cookie 在本站及其合作网站上投放广告。Google 使用 DART Cookie 根据用户过往访问记录展示广告。用户可以通过 <a href="https://adssettings.google.com" target="_blank">Google 广告设置</a> 关闭个性化广告。</li>';
+  body += '    <li><strong>Google Analytics</strong>：Google Analytics 使用 Cookie 收集网站使用数据的匿名统计信息。您可以安装 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank">Google Analytics 浏览器插件</a> 来禁止数据收集。</li>';
+  body += '  </ul>';
+  body += '  <p>请注意，这些第三方服务有各自的隐私政策和 Cookie 政策，我们建议您查阅其官方网站了解详情。本站对第三方 Cookie 的使用不承担直接责任。</p>';
+
+  body += '  <h2>4. 如何管理 Cookie</h2>';
+  body += '  <p>您可以通过以下方式管理或删除 Cookie：</p>';
+
+  body += '  <h3>4.1 浏览器设置</h3>';
+  body += '  <p>大多数浏览器允许您通过设置来管理 Cookie。您可以选择：</p>';
+  body += '  <ul>';
+  body += '    <li><strong>阻止所有 Cookie</strong>：最严格的设置，但可能导致部分网站功能无法正常使用</li>';
+  body += '    <li><strong>阻止第三方 Cookie</strong>：仅允许来自您当前访问网站的 Cookie，屏蔽来自广告和分析服务的 Cookie</li>';
+  body += '    <li><strong>清除现有 Cookie</strong>：删除浏览器中已存储的所有 Cookie</li>';
+  body += '    <li><strong>按站点设置 Cookie</strong>：对特定网站启用或禁用 Cookie</li>';
+  body += '  </ul>';
+
+  body += '  <h3>4.2 各浏览器 Cookie 设置指引</h3>';
+  body += '  <ul>';
+  body += '    <li><strong>Chrome</strong>：设置 > 隐私和安全 > Cookie 及其他网站数据</li>';
+  body += '    <li><strong>Firefox</strong>：设置 > 隐私与安全 > Cookie 和网站数据</li>';
+  body += '    <li><strong>Safari</strong>：偏好设置 > 隐私 > 管理网站数据</li>';
+  body += '    <li><strong>Edge</strong>：设置 > Cookie 和网站权限 > 管理和删除 Cookie</li>';
+  body += '  </ul>';
+
+  body += '  <h3>4.3 第三方退出选项</h3>';
+  body += '  <p>除了浏览器设置，您还可以通过以下方式退出个性化广告：</p>';
+  body += '  <ul>';
+  body += '    <li>访问 <a href="https://adssettings.google.com" target="_blank">Google 广告设置</a> 管理您的广告偏好</li>';
+  body += '    <li>访问 <a href="https://adssettings.google.com/authenticated" target="_blank">Google 广告设置（已登录）</a> 关闭个性化广告</li>';
+  body += '    <li>访问 <a href="http://www.aboutads.info/choices/" target="_blank">aboutads.info</a> 了解更多关于第三方广告 Cookie 的退出选项</li>';
+  body += '  </ul>';
+  body += '  <p><strong>请注意</strong>：关闭 Cookie 或退出个性化广告可能会影响本站的部分功能体验，且您仍然会看到广告，只是这些广告可能与您的兴趣相关性较低。</p>';
+
+  body += '  <h2>5. Cookie 政策更新</h2>';
+  body += '  <p>本站可能会随着服务变化、技术更新或法律法规要求而更新本 Cookie 政策。更新后的政策将在本页面发布，并更新"最后更新日期"。</p>';
+  body += '  <p>建议您定期查看本页面以了解最新的 Cookie 使用情况。重大变更时，我们可能会通过网站公告等方式进行通知。</p>';
+
+  body += '  <h2>6. 相关政策</h2>';
+  body += '  <p>Cookie 政策是本站隐私保护体系的一部分。如需了解更多信息，请查阅以下相关政策：</p>';
+  body += '  <ul>';
+  body += '    <li><a href="/privacy">隐私政策</a> - 了解我们如何收集、使用和保护您的个人信息</li>';
+  body += '    <li><a href="/terms">使用条款</a> - 了解使用本站服务的相关条款</li>';
+  body += '    <li><a href="/disclaimer">免责声明</a> - 了解本站内容的免责说明</li>';
+  body += '  </ul>';
+
+  body += '  <h2>7. 联系我们</h2>';
+  body += '  <p>如果您对本 Cookie 政策有任何疑问或建议，欢迎通过以下方式联系我们：</p>';
+  body += '  <ul>';
+  body += '    <li>邮箱：<a href="mailto:admin@maozz.online">admin@maozz.online</a></li>';
+  body += '    <li><a href="/contact">在线联系我们</a></li>';
+  body += '    <li><a href="/msgboard">留言板</a></li>';
+  body += '  </ul>';
+  body += '</div>';
+%>
+
+<%- include('layout', { title: title, bodyClass: 'page-cookie-policy', body: body }) %>
