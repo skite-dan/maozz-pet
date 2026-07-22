@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Monetag In-Page Push -->
+  <script>(function(s){s.dataset.zone="11313030",s.src="https://nap5k.com/tag.min.js"})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement("script")))</script>
+  <!-- Monetag Vignette Banner -->
+  <script>(function(s){s.dataset.zone="11313003",s.src="https://n6wxm.com/vignette.min.js"})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement("script")))</script>
   <title><%= typeof title !== 'undefined' ? title : '毛茸茸星球-专业铲屎官宠物交流论坛 | 养猫养狗饲养问诊同城领养' %></title>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
@@ -29,8 +33,20 @@
   <meta name="twitter:description" content="<%= typeof metaDesc !== 'undefined' ? metaDesc : '专为铲屎官打造的宠物社区' %>">
   <meta name="twitter:image" content="<%= typeof ogImage !== 'undefined' && ogImage ? ogImage : ((typeof siteUrl !== 'undefined' ? siteUrl : '') + '/images/og-default.jpg') %>">
   <link rel="sitemap" type="application/xml" href="<%= siteUrl || '' %>/sitemap.xml">
-  <!-- Google Search Console 验证 (请替换为实际验证码) -->
-  <meta name="google-site-verification" content="YOUR_GSC_VERIFICATION_CODE_HERE">
+  <!-- 百度自动推送 -->
+  <script>
+  (function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+      bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    } else {
+      bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+  })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1145,4 +1161,4 @@
   })();
   </script>
 </body>
-</html>
+</html>

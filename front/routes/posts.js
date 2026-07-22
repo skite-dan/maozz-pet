@@ -47,7 +47,7 @@ router.get('/', optionalAuth, async (req, res) => {
 
 // 生成slug
 function generateSlug(title) {
-  const slug = title.trim().replace(/[<>:"/\\|?*#&%=+\s]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 80) || 'post';
+  const slug = title.trim().replace(/[<>:"\/\\|?*#&%=+\s'`：：、，。！？…—]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 80) || 'post';
   return slug;
 }
 

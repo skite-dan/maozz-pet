@@ -4,7 +4,7 @@ const config = require('../../shared/config');
 async function initRedis(app) {
   try {
     const redis = createClient({
-      socket: { host: config.redis.host, port: config.redis.port },
+      socket: { host: config.redis.host, port: config.redis.port, reconnectStrategy: false },
       password: config.redis.password || undefined,
     });
 

@@ -5,6 +5,12 @@ const { success, error } = require('../../shared/utils/response');
 
 const router = express.Router();
 
+// 生成slug
+function generateSlug(title) {
+  const slug = title.trim().replace(/[<>:"\/\\|?*#&%=+\s'`：：、，。！？…—]+/g, '-').replace(/^-+|-+$/g, '').substring(0, 80) || 'post';
+  return slug;
+}
+
 // 所有admin路由需要管理员权限
 router.use(admin);
 
@@ -195,9 +201,14 @@ router.post('/posts', async (req, res) => {
     const user = await queryOne('SELECT id, username FROM users WHERE id = ? AND status = 1', [user_id]);
     if (!user) return error(res, 400, '所选用户不存在或已禁用');
 
+    // 生成 slug
+    const slug = generateSlug(title);
+    const slugCheck = await queryOne('SELECT id FROM posts WHERE slug = ?', [slug]);
+    const finalSlug = slugCheck ? slug + '-' + Date.now().toString(36) : slug;
+
     const result = await query(
-      'INSERT INTO posts (user_id, title, content, post_type, category, tags, status, is_pinned, is_featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [user_id, title, content, post_type || 'forum', category || null, tags || null, status, is_pinned ? 1 : 0, is_featured ? 1 : 0]
+      'INSERT INTO posts (user_id, title, content, post_type, category, tags, status, is_pinned, is_featured, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [user_id, title, content, post_type || 'forum', category || null, tags || null, status, is_pinned ? 1 : 0, is_featured ? 1 : 0, finalSlug]
     );
 
     // 处理媒体文件
