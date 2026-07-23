@@ -57,32 +57,32 @@ body += '</div>';
 
 var pageScript = '';
 pageScript += '<script>';
-pageScript += '  let currentPage = 1;';
-pageScript += '  let pageSize = 10;';
-pageScript += '  let currentSort = "";';
-pageScript += '  let currentDir = "";';
+pageScript += '  var currentPage = 1;';
+pageScript += '  var pageSize = 10;';
+pageScript += '  var currentSort = "";';
+pageScript += '  var currentDir = "";';
 pageScript += '  var initialMessages = ' + JSON.stringify((initialData && initialData.messages) ? initialData.messages : []) + ';';
 pageScript += '  var initialTotal = ' + ((initialData && initialData.total) ? initialData.total : 0) + ';';
 pageScript += '';
 pageScript += '  /* ========== Load Messages ========== */';
 pageScript += '  async function loadMessages() {';
-pageScript += '    const status = document.getElementById("filterStatus").value;';
-pageScript += '    const keyword = document.getElementById("searchKeyword").value.trim();';
+pageScript += '    var status = document.getElementById("filterStatus").value;';
+pageScript += '    var keyword = document.getElementById("searchKeyword").value.trim();';
 pageScript += '    pageSize = parseInt(document.getElementById("pageSize").value) || 10;';
 pageScript += '';
-pageScript += '    let url = "/api/admin/messages?page=" + currentPage + "&limit=" + pageSize;';
+pageScript += '    var url = "/api/admin/messages?page=" + currentPage + "&limit=" + pageSize;';
 pageScript += '    if (status !== "") url += "&status=" + status;';
 pageScript += '    if (keyword) url += "&keyword=" + encodeURIComponent(keyword);';
 pageScript += '    if (currentSort) url += "&sortBy=" + currentSort + "&sortDir=" + currentDir;';
 pageScript += '';
-pageScript += '    const res = await adminFetch(url);';
+pageScript += '    var res = await adminFetch(url);';
 pageScript += '    if (!res || !res.ok) {';
 pageScript += '      var tbody = document.getElementById("messagesBody");';
 pageScript += '      tbody.innerHTML = "<tr><td colspan=\\"7\\"><div class=\\"empty-state\\"><div class=\\"empty-icon\\">&#x26A0;</div><p>请求失败，请刷新页面重试</p></div></td></tr>";';
 pageScript += '      document.getElementById("messageCount").textContent = "";';
 pageScript += '      return;';
 pageScript += '    }';
-pageScript += '    const data = await res.json();';
+pageScript += '    var data = await res.json();';
 pageScript += '';
 pageScript += '    if (data.code === 200 && data.data) {';
 pageScript += '      var list = data.data.list || data.data.messages || [];';
@@ -92,8 +92,8 @@ pageScript += '        document.getElementById("messageCount").textContent = "�
 pageScript += '        document.getElementById("paginationContainer").innerHTML = "";';
 pageScript += '      } else {';
 pageScript += '        renderMessages(list);';
-pageScript += '        const total = data.data.total || 0;';
-pageScript += '        const totalPages = Math.ceil(total / pageSize);';
+pageScript += '        var total = data.data.total || 0;';
+pageScript += '        var totalPages = Math.ceil(total / pageSize);';
 pageScript += '        document.getElementById("messageCount").textContent = "共 " + total + " 条记录";';
 pageScript += '        renderPagination("paginationContainer", currentPage, totalPages, function(page) {';
 pageScript += '          currentPage = page;';
@@ -107,61 +107,60 @@ pageScript += '    }';
 pageScript += '  }';
 pageScript += '';
 pageScript += '  /* ========== Render Messages ========== */';
-pageScript += '  function renderMessages(messages) {';
-pageScript += '    const tbody = document.getElementById("messagesBody");';
-pageScript += '    if (!messages || messages.length === 0) {';
-pageScript += '      tbody.innerHTML = \'<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x1F4ED;</div><p>暂无留言数据</p></div></td></tr>\';';
-pageScript += '      return;';
-pageScript += '    }';
-pageScript += '';
-pageScript += '    const statusMap = { "normal": { text: "正常", cls: "success" }, "pending": { text: "待审核", cls: "warning" }, "hidden": { text: "已隐藏", cls: "default" }, "deleted": { text: "已删除", cls: "danger" }, "default": { text: "未知", cls: "default" } };';
-pageScript += '';
-pageScript += '    tbody.innerHTML = messages.map(m => {';
-pageScript += '      const isGuest = !m.user_id && !m.userId;';
-pageScript += '      const authorName = m.username || m.authorName || (isGuest ? (m.nickname || "游客") : "-");';
-pageScript += '';
-pageScript += '      return \'<tr>\' +';
-pageScript += '        \'<td class="cell-id">\' + (m.id || \'-\') + \'</td>\' +';
-pageScript += '        \'<td class="cell-content" title="\' + escapeHtml(m.content || \'\') + \'">\' + escapeHtml(truncate(m.content || \'-\', 40)) + \'</td>\' +';
-pageScript += '        \'<td>\' +';
-pageScript += '          \'<div style="display:flex;align-items:center;gap:6px;">\' +';
-pageScript += '          (isGuest ? \'<span style="font-size:14px;">&#x1F577;</span>\' : \'<span style="font-size:14px;">&#x1F464;</span>\') +';
-pageScript += '          \'<span>\' + escapeHtml(authorName) + \'</span>\' +';
-pageScript += '          \'</div>\' +';
-pageScript += '        \'</td>\' +';
-pageScript += '        \'<td>\' +';
-pageScript += '          \'<span class="status-tag \' + (isGuest ? \'default\' : \'info\') + \'">\' + (isGuest ? \'游客\' : \'注册用户\') + \'</span>\' +';
-pageScript += '        \'</td>\' +';
-pageScript += '        \'<td>\' + statusTag(m.status, statusMap) + \'</td>\' +';
-pageScript += '        \'<td style="font-size:12px;color:#64748b;white-space:nowrap;">\' + formatDate(m.created_at || m.createdAt) + \'</td>\' +';
-pageScript += '        \'<td>\' +';
-pageScript += '          \'<div style="display:flex;gap:4px;flex-wrap:nowrap;">\' +';
-pageScript += '          \'<button class="btn btn-sm \' + (m.status === 2 ? \'btn-success\' : \'btn-warning\') + \'"\' +';
-pageScript += '          \' onclick="toggleMessageVisibility(\' + m.id + \', \' + m.status + \')">\' +';
-pageScript += '          (m.status === 2 ? \'&#x1F441; 显示\' : \'&#x1F6AE; 隐藏\') +';
-pageScript += '          \'</button>\' +';
-pageScript += '          \'<button class="btn btn-sm btn-danger" onclick="deleteMessage(\' + m.id + \')">&#x1F5D1;</button>\' +';
-pageScript += '          \'</div>\' +';
-pageScript += '        \'</td>\' +';
-pageScript += '        \'</tr>\';';
-pageScript += '    }).join(\'\');';
-pageScript += '  }';
+pageScript += `
+  function renderMessages(messages) {
+    var tbody = document.getElementById("messagesBody");
+    if (!messages || messages.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x1F4ED;</div><p>暂无留言数据</p></div></td></tr>';
+      return;
+    }
+    var statusMap = { "normal": { text: "正常", cls: "success" }, "pending": { text: "待审核", cls: "warning" }, "hidden": { text: "已隐藏", cls: "default" }, "deleted": { text: "已删除", cls: "danger" }, "default": { text: "未知", cls: "default" } };
+    tbody.innerHTML = messages.map(function(m) {
+      var isGuest = !m.user_id && !m.userId;
+      var authorName = m.username || m.authorName || (isGuest ? (m.nickname || "游客") : "-");
+      return '<tr>' +
+        '<td class="cell-id">' + (m.id || '-') + '</td>' +
+        '<td class="cell-content" title="' + escapeHtml(m.content || '') + '">' + escapeHtml(truncate(m.content || '-', 40)) + '</td>' +
+        '<td>' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+          (isGuest ? '<span style="font-size:14px;">&#x1F577;</span>' : '<span style="font-size:14px;">&#x1F464;</span>') +
+          '<span>' + escapeHtml(authorName) + '</span>' +
+          '</div>' +
+        '</td>' +
+        '<td>' +
+          '<span class="status-tag ' + (isGuest ? 'default' : 'info') + '">' + (isGuest ? '游客' : '注册用户') + '</span>' +
+        '</td>' +
+        '<td>' + statusTag(m.status, statusMap) + '</td>' +
+        '<td style="font-size:12px;color:#64748b;white-space:nowrap;">' + formatDate(m.created_at || m.createdAt) + '</td>' +
+        '<td>' +
+          '<div style="display:flex;gap:4px;flex-wrap:nowrap;">' +
+          '<button class="btn btn-sm ' + (m.status === 'hidden' ? 'btn-success' : 'btn-warning') + '"' +
+          ' onclick="toggleMessageVisibility(' + m.id + ', ' + "'" + m.status + "'" + ')">' +
+          (m.status === 'hidden' ? '&#x1F441; 显示' : '&#x1F6AE; 隐藏') +
+          '</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="deleteMessage(' + m.id + ')">&#x1F5D1;</button>' +
+          '</div>' +
+        '</td>' +
+        '</tr>';
+    }).join('');
+  }
+`;
 pageScript += '';
 pageScript += '  /* ========== Toggle Message Visibility ========== */';
 pageScript += '  async function toggleMessageVisibility(messageId, currentStatus) {';
-pageScript += '    const newStatus = currentStatus === 2 ? 1 : 2;';
-pageScript += '    const action = newStatus === 2 ? "隐藏" : "显示";';
+pageScript += '    var newStatus = currentStatus === \'hidden\' ? \'normal\' : \'hidden\';';
+pageScript += '    var action = newStatus === \'hidden\' ? "隐藏" : "显示";';
 pageScript += '';
 pageScript += '    showConfirm(';
 pageScript += '      action + "留言",';
 pageScript += '      "确定要" + action + "该留言吗？",';
 pageScript += '      async function() {';
-pageScript += '        const res = await adminFetch("/api/admin/messages/" + messageId + "/status", {';
+pageScript += '        var res = await adminFetch("/api/admin/messages/" + messageId + "/status", {';
 pageScript += '          method: "PUT",';
 pageScript += '          body: JSON.stringify({ status: newStatus })';
 pageScript += '        });';
 pageScript += '        if (!res) return;';
-pageScript += '        const data = await res.json();';
+pageScript += '        var data = await res.json();';
 pageScript += '        if (data.code === 200) {';
 pageScript += '          showToast("留言已" + action, "success");';
 pageScript += '          loadMessages();';
@@ -178,11 +177,12 @@ pageScript += '    showConfirm(';
 pageScript += '      "删除留言",';
 pageScript += '      "确定要删除该留言吗？此操作不可恢复。",';
 pageScript += '      async function() {';
-pageScript += '        const res = await adminFetch("/api/admin/messages/" + messageId, {';
-pageScript += '          method: "DELETE"';
+pageScript += '        var res = await adminFetch("/api/admin/messages/" + messageId + "/status", {';
+pageScript += '          method: "PUT",';
+pageScript += '          body: JSON.stringify({ status: "deleted" })';
 pageScript += '        });';
 pageScript += '        if (!res) return;';
-pageScript += '        const data = await res.json();';
+pageScript += '        var data = await res.json();';
 pageScript += '        if (data.code === 200) {';
 pageScript += '          showToast("留言已删除", "success");';
 pageScript += '          loadMessages();';
@@ -219,7 +219,7 @@ pageScript += '';
 pageScript += '  /* ========== Escape HTML ========== */';
 pageScript += '  function escapeHtml(str) {';
 pageScript += '    if (!str) return "";';
-pageScript += '    const div = document.createElement("div");';
+pageScript += '    var div = document.createElement("div");';
 pageScript += '    div.textContent = str;';
 pageScript += '    return div.innerHTML;';
 pageScript += '  }';

@@ -57,32 +57,32 @@ body += '</div>';
 
 var pageScript = '';
 pageScript += '<script>';
-pageScript += '  let currentPage = 1;';
-pageScript += '  let pageSize = 10;';
-pageScript += '  let currentSort = "";';
-pageScript += '  let currentDir = "";';
+pageScript += '  var currentPage = 1;';
+pageScript += '  var pageSize = 10;';
+pageScript += '  var currentSort = "";';
+pageScript += '  var currentDir = "";';
 pageScript += '  var initialComments = ' + JSON.stringify((initialData && initialData.comments) ? initialData.comments : []) + ';';
 pageScript += '  var initialTotal = ' + ((initialData && initialData.total) ? initialData.total : 0) + ';';
 pageScript += '';
 pageScript += '  /* ========== Load Comments ========== */';
 pageScript += '  async function loadComments() {';
-pageScript += '    const status = document.getElementById("filterStatus").value;';
-pageScript += '    const keyword = document.getElementById("searchKeyword").value.trim();';
+pageScript += '    var status = document.getElementById("filterStatus").value;';
+pageScript += '    var keyword = document.getElementById("searchKeyword").value.trim();';
 pageScript += '    pageSize = parseInt(document.getElementById("pageSize").value) || 10;';
 pageScript += '';
-pageScript += '    let url = "/api/admin/comments?page=" + currentPage + "&limit=" + pageSize;';
+pageScript += '    var url = "/api/admin/comments?page=" + currentPage + "&limit=" + pageSize;';
 pageScript += '    if (status !== "") url += "&status=" + status;';
 pageScript += '    if (keyword) url += "&keyword=" + encodeURIComponent(keyword);';
 pageScript += '    if (currentSort) url += "&sortBy=" + currentSort + "&sortDir=" + currentDir;';
 pageScript += '';
-pageScript += '    const res = await adminFetch(url);';
+pageScript += '    var res = await adminFetch(url);';
 pageScript += '    if (!res || !res.ok) {';
 pageScript += '      var tbody = document.getElementById("commentsBody");';
 pageScript += '      tbody.innerHTML = "<tr><td colspan=\\"7\\"><div class=\\"empty-state\\"><div class=\\"empty-icon\\">&#x26A0;</div><p>请求失败，请刷新页面重试</p></div></td></tr>";';
 pageScript += '      document.getElementById("commentCount").textContent = "";';
 pageScript += '      return;';
 pageScript += '    }';
-pageScript += '    const data = await res.json();';
+pageScript += '    var data = await res.json();';
 pageScript += '';
 pageScript += '    if (data.code === 200 && data.data) {';
 pageScript += '      var list = data.data.list || data.data.comments || [];';
@@ -92,8 +92,8 @@ pageScript += '        document.getElementById("commentCount").textContent = "�
 pageScript += '        document.getElementById("paginationContainer").innerHTML = "";';
 pageScript += '      } else {';
 pageScript += '        renderComments(list);';
-pageScript += '        const total = data.data.total || 0;';
-pageScript += '        const totalPages = Math.ceil(total / pageSize);';
+pageScript += '        var total = data.data.total || 0;';
+pageScript += '        var totalPages = Math.ceil(total / pageSize);';
 pageScript += '        document.getElementById("commentCount").textContent = "共 " + total + " 条记录";';
 pageScript += '        renderPagination("paginationContainer", currentPage, totalPages, function(page) {';
 pageScript += '          currentPage = page;';
@@ -107,54 +107,56 @@ pageScript += '    }';
 pageScript += '  }';
 pageScript += '';
 pageScript += '  /* ========== Render Comments ========== */';
-pageScript += '  function renderComments(comments) {';
-pageScript += '    const tbody = document.getElementById("commentsBody");';
-pageScript += '    if (!comments || comments.length === 0) {';
-pageScript += '      tbody.innerHTML = \'<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x1F4ED;</div><p>暂无评论数据</p></div></td></tr>\';';
-pageScript += '      return;';
-pageScript += '    }';
-pageScript += '';
-pageScript += '    const statusMap = { "normal": { text: "正常", cls: "success" }, "pending": { text: "待审核", cls: "warning" }, "hidden": { text: "已隐藏", cls: "default" }, "deleted": { text: "已删除", cls: "danger" }, "default": { text: "未知", cls: "default" } };';
-pageScript += '';
-pageScript += '    tbody.innerHTML = comments.map(c => \'<tr>\' +';
-pageScript += '      \'<td class="cell-id">\' + (c.id || \'-\') + \'</td>\' +';
-pageScript += '      \'<td class="cell-content" title="\' + escapeHtml(c.content || \'\') + \'">\' + escapeHtml(truncate(c.content || \'-\', 40)) + \'</td>\' +';
-pageScript += '      \'<td>\' + escapeHtml(c.username || c.authorName || \'-\') + \'</td>\' +';
-pageScript += '      \'<td class="cell-content" title="\' + escapeHtml(c.postTitle || c.post_title || \'\') + \'">\' +';
-pageScript += '        (c.post_id || c.postId';
-pageScript += '          ? \'<a href="/posts/\' + (c.post_id || c.postId) + \'" target="_blank" style="color:#3b82f6;">\' + escapeHtml(truncate(c.postTitle || c.post_title || ("帖子#" + (c.post_id || c.postId)), 20)) + \'</a>\'';
-pageScript += '          : \'-\'';
-pageScript += '        ) +';
-pageScript += '      \'</td>\' +';
-pageScript += '      \'<td>\' + statusTag(c.status, statusMap) + \'</td>\' +';
-pageScript += '      \'<td style="font-size:12px;color:#64748b;white-space:nowrap;">\' + formatDate(c.created_at || c.createdAt) + \'</td>\' +';
-pageScript += '      \'<td>\' +';
-pageScript += '        \'<div style="display:flex;gap:4px;flex-wrap:nowrap;">\' +';
-pageScript += '        \'<button class="btn btn-sm \' + (c.status === 2 ? \'btn-success\' : \'btn-warning\') + \'"\' +';
-pageScript += '        \' onclick="toggleCommentVisibility(\' + c.id + \', \' + c.status + \')">\' +';
-pageScript += '        (c.status === 2 ? \'&#x1F441; 显示\' : \'&#x1F6AE; 隐藏\') +';
-pageScript += '        \'</button>\' +';
-pageScript += '        \'<button class="btn btn-sm btn-danger" onclick="deleteComment(\' + c.id + \')">&#x1F5D1;</button>\' +';
-pageScript += '        \'</div>\' +';
-pageScript += '      \'</td>\' +';
-pageScript += '      \'</tr>\').join(\'\');';
-pageScript += '  }';
+pageScript += `
+  function renderComments(comments) {
+    var tbody = document.getElementById("commentsBody");
+    if (!comments || comments.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#x1F4ED;</div><p>暂无评论数据</p></div></td></tr>';
+      return;
+    }
+    var statusMap = { "normal": { text: "正常", cls: "success" }, "pending": { text: "待审核", cls: "warning" }, "hidden": { text: "已隐藏", cls: "default" }, "deleted": { text: "已删除", cls: "danger" }, "default": { text: "未知", cls: "default" } };
+    tbody.innerHTML = comments.map(function(c) {
+      return '<tr>' +
+        '<td class="cell-id">' + (c.id || '-') + '</td>' +
+        '<td class="cell-content" title="' + escapeHtml(c.content || '') + '">' + escapeHtml(truncate(c.content || '-', 40)) + '</td>' +
+        '<td>' + escapeHtml(c.username || c.authorName || '-') + '</td>' +
+        '<td class="cell-content" title="' + escapeHtml(c.postTitle || c.post_title || '') + '">' +
+          (c.post_id || c.postId
+            ? '<a href="/posts/' + (c.post_id || c.postId) + '" target="_blank" style="color:#3b82f6;">' + escapeHtml(truncate(c.postTitle || c.post_title || ("帖子#" + (c.post_id || c.postId)), 20)) + '</a>'
+            : '-'
+          ) +
+        '</td>' +
+        '<td>' + statusTag(c.status, statusMap) + '</td>' +
+        '<td style="font-size:12px;color:#64748b;white-space:nowrap;">' + formatDate(c.created_at || c.createdAt) + '</td>' +
+        '<td>' +
+          '<div style="display:flex;gap:4px;flex-wrap:nowrap;">' +
+          '<button class="btn btn-sm ' + (c.status === 'hidden' ? 'btn-success' : 'btn-warning') + '"' +
+          ' onclick="toggleCommentVisibility(' + c.id + ', ' + "'" + c.status + "'" + ')">' +
+          (c.status === 'hidden' ? '&#x1F441; 显示' : '&#x1F6AE; 隐藏') +
+          '</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="deleteComment(' + c.id + ')">&#x1F5D1;</button>' +
+          '</div>' +
+        '</td>' +
+        '</tr>';
+    }).join('');
+  }
+`;
 pageScript += '';
 pageScript += '  /* ========== Toggle Comment Visibility ========== */';
 pageScript += '  async function toggleCommentVisibility(commentId, currentStatus) {';
-pageScript += '    const newStatus = currentStatus === 2 ? 1 : 2;';
-pageScript += '    const action = newStatus === 2 ? "隐藏" : "显示";';
+pageScript += '    var newStatus = currentStatus === \'hidden\' ? \'normal\' : \'hidden\';';
+pageScript += '    var action = newStatus === \'hidden\' ? "隐藏" : "显示";';
 pageScript += '';
 pageScript += '    showConfirm(';
 pageScript += '      action + "评论",';
 pageScript += '      "确定要" + action + "该评论吗？",';
 pageScript += '      async function() {';
-pageScript += '        const res = await adminFetch("/api/admin/comments/" + commentId + "/status", {';
+pageScript += '        var res = await adminFetch("/api/admin/comments/" + commentId + "/status", {';
 pageScript += '          method: "PUT",';
 pageScript += '          body: JSON.stringify({ status: newStatus })';
 pageScript += '        });';
 pageScript += '        if (!res) return;';
-pageScript += '        const data = await res.json();';
+pageScript += '        var data = await res.json();';
 pageScript += '        if (data.code === 200) {';
 pageScript += '          showToast("评论已" + action, "success");';
 pageScript += '          loadComments();';
@@ -171,11 +173,12 @@ pageScript += '    showConfirm(';
 pageScript += '      "删除评论",';
 pageScript += '      "确定要删除该评论吗？此操作不可恢复。",';
 pageScript += '      async function() {';
-pageScript += '        const res = await adminFetch("/api/admin/comments/" + commentId, {';
-pageScript += '          method: "DELETE"';
+pageScript += '        var res = await adminFetch("/api/admin/comments/" + commentId + "/status", {';
+pageScript += '          method: "PUT",';
+pageScript += '          body: JSON.stringify({ status: "deleted" })';
 pageScript += '        });';
 pageScript += '        if (!res) return;';
-pageScript += '        const data = await res.json();';
+pageScript += '        var data = await res.json();';
 pageScript += '        if (data.code === 200) {';
 pageScript += '          showToast("评论已删除", "success");';
 pageScript += '          loadComments();';
@@ -212,7 +215,7 @@ pageScript += '';
 pageScript += '  /* ========== Escape HTML ========== */';
 pageScript += '  function escapeHtml(str) {';
 pageScript += '    if (!str) return "";';
-pageScript += '    const div = document.createElement("div");';
+pageScript += '    var div = document.createElement("div");';
 pageScript += '    div.textContent = str;';
 pageScript += '    return div.innerHTML;';
 pageScript += '  }';
