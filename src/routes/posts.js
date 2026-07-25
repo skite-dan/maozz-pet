@@ -2,6 +2,7 @@ const express = require('express');
 const { query, queryOne } = require('../models');
 const { auth, optionalAuth } = require('../middlewares/auth');
 const { success, error, created } = require('../utils/response');
+const { isBotRequest } = require('../utils/botFilter');
 
 const router = express.Router();
 
@@ -52,9 +53,11 @@ router.get('/:id', optionalAuth, async (req, res) => {
     );
     if (!post) return error(res, 404, '帖子不存在');
 
-    // 增加浏览量
-    await query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [req.params.id]);
-    post.view_count++;
+    // 增加浏览量（排除爬虫/云服务器）
+    if (!isBotRequest(req)) {
+      await query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [req.params.id]);
+      post.view_count++;
+    }
 
     // 获取媒体
     const media = await query('SELECT * FROM post_media WHERE post_id = ? ORDER BY sort_order', [req.params.id]);

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { query, queryOne } = require('../../shared/models');
+const { isBotRequest } = require('../../shared/utils/botFilter');
 
 const SITE_URL = process.env.SITE_URL || 'https://www.maozz.online';
 
@@ -115,8 +116,11 @@ router.get('/post/:id', async (req, res, next) => {
     }
     if (!post) return res.status(404).render('error', { title: '帖子未找到 - 毛茸茸星球', errorCode: 404, errorMessage: '帖子不存在或已被删除', errorDetail: '' });
 
-    await query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [post.id]);
-    post.view_count++;
+    // 增加浏览量（排除爬虫/云服务器）
+    if (!isBotRequest(req)) {
+      await query('UPDATE posts SET view_count = view_count + 1 WHERE id = ?', [post.id]);
+      post.view_count++;
+    }
 
     const media = await query('SELECT * FROM post_media WHERE post_id = ? ORDER BY sort_order', [post.id]);
     const comments = await query(

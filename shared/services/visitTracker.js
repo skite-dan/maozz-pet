@@ -1,4 +1,5 @@
 const { query, queryOne } = require('../models');
+const { isBotRequest } = require('../utils/botFilter');
 
 /**
  * 初始化 site_visits 表
@@ -23,6 +24,11 @@ async function ensureVisitTable() {
  */
 async function recordVisit(req) {
   try {
+    // 过滤爬虫/云服务器访问
+    if (isBotRequest(req)) {
+      return;
+    }
+
     const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
     const redis = req.app.locals.redis;

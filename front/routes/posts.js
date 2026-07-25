@@ -2,6 +2,7 @@ const express = require('express');
 const { query, queryOne } = require('../../shared/models');
 const { auth, optionalAuth } = require('../../shared/middlewares/auth');
 const { success, error, created } = require('../../shared/utils/response');
+const { isBotRequest } = require('../../shared/utils/botFilter');
 
 const router = express.Router();
 
@@ -56,11 +57,13 @@ router.get('/:id', optionalAuth, async (req, res) => {
   try {
     const param = req.params.id;
     let post;
-    // Increment weekly_views
-    if (/^\d+$/.test(param)) {
-      await query('UPDATE posts SET view_count = view_count + 1, weekly_views = weekly_views + 1 WHERE id = ?', [param]);
-    } else {
-      await query('UPDATE posts SET view_count = view_count + 1, weekly_views = weekly_views + 1 WHERE slug = ?', [param]);
+    // 增加浏览量（排除爬虫/云服务器）
+    if (!isBotRequest(req)) {
+      if (/^\d+$/.test(param)) {
+        await query('UPDATE posts SET view_count = view_count + 1, weekly_views = weekly_views + 1 WHERE id = ?', [param]);
+      } else {
+        await query('UPDATE posts SET view_count = view_count + 1, weekly_views = weekly_views + 1 WHERE slug = ?', [param]);
+      }
     }
     if (/^\d+$/.test(param)) {
       post = await queryOne(
