@@ -38,11 +38,27 @@
   body += '        <div class="loading"><div class="spinner"></div>加载中...</div>';
   body += '      </div>';
   body += '    </div>';
-  body += '    <div class="ad-banner ad-placeholder">广告位</div>';
+  body += '    <div class="ad-banner ad-placeholder" style="display:none;">广告位</div>';
   body += '    <div class="widget">';
   body += '      <h3 class="widget-title">🏷️ 热门标签</h3>';
   body += '      <div class="tag-cloud" id="postTags"></div>';
   body += '    </div>';
+
+  // Ad - Banner 300x250 (热门标签下方)
+  body += '    <div class="widget adsterra-sidebar-native">';
+  body += '      <iframe style="width:300px;height:250px;border:none;max-width:100%;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\': \'iframe\', \'height\': 250, \'width\': 300, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
+  // Ad - Banner 160x300 (300x250下方)
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
+  // Ad - Banner 160x600 (160x300下方)
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
   body += '  </aside>';
   body += '</div>';
 
