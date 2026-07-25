@@ -49,8 +49,10 @@
   body += '<div class="page-layout">';
   body += '  <div class="content-area">';
 
-  // Ad
-  body += '    <div class="ad-banner">广告位 - 欢迎合作投放</div>';
+  // Ad - Social Bar
+  body += '    <div class="ad-banner adsterra-social-bar">';
+  body += '      <script async src="https://pl30527772.effectivecpmnetwork.com/b9/95/51/b9951cfbbf3ac0bce8c8a355d778987.js"><\/script>';
+  body += '    </div>';
 
   // Hot Pets TOP6
   body += '    <section>';
@@ -92,6 +94,17 @@
   body += '        </noscript>';
   body += '      </div>';
   body += '    </section>';
+
+  // Ad - Content Native Banner (已隐藏)
+  // body += '    <div class="adsterra-content-native" style="margin-bottom:30px;">';
+  // body += '      <script async="async" data-cfasync="false" src="https://pl30527773.effectivecpmnetwork.com/4611999d12ebb8ad0ab788ada25367f0/invoke.js"><\/script>';
+  // body += '      <div id="container-4611999d12ebb8ad0ab788ada25367f0"></div>';
+  // body += '    </div>';
+
+  // Ad - Social Bar (最新内容上方)
+  body += '    <div class="ad-banner adsterra-social-bar" style="margin-bottom:30px;">';
+  body += '      <script async src="https://pl30527772.effectivecpmnetwork.com/b9/95/51/b9951cfbbf3ac0bce8c8a355d778987.js"><\/script>';
+  body += '    </div>';
 
   // Latest Content
   body += '    <section>';
@@ -163,8 +176,13 @@ body += `    </section>`;
 
   body += '  </div>';
 
-  // Sidebar (no hot tags)
+  // Sidebar
   body += '  <aside class="sidebar">';
+
+  // Ad - Native Banner (300x250) - iframe隔离避免atOptions全局变量冲突
+  body += '    <div class="widget adsterra-sidebar-native">';
+  body += '      <iframe style="width:300px;height:250px;border:none;max-width:100%;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\': \'iframe\', \'height\': 250, \'width\': 300, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
 
   // Weekly Hot
   body += '    <div class="widget">';
@@ -217,6 +235,16 @@ body += `    </div>`;
   body += '      <a href="/about" class="btn btn-outline btn-sm" style="margin-top:12px;">了解更多</a>';
   body += '    </div>';
 
+  // Ad - Banner 160x300 (关于本站下方、160x600上方) - iframe隔离避免atOptions全局变量冲突
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
+  // Ad - Banner 160x600 (关于本站下方) - iframe隔离避免atOptions全局变量冲突
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
   body += '  </aside>';
   body += '</div>';
 
@@ -254,129 +282,122 @@ body += `    </div>`;
   pageScript += '    if (carousel) { carousel.addEventListener("mouseenter", stopAuto); carousel.addEventListener("mouseleave", startAuto); }';
   pageScript += '    startAuto();';
   pageScript += '  }';
-  pageScript += '  async function loadFeatured() {';
-  pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=likes&limit=2");';
-  pageScript += '      const data = await res.json();';
-  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
-  pageScript += '        document.getElementById("featuredArea").innerHTML = data.data.posts.map(p => renderArticleCard(p)).join("");';
-  pageScript += '      } else {';
-  pageScript += '        document.getElementById("featuredArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无精选内容</p></div>\';';
-  pageScript += '      }';
-  pageScript += '    } catch(e) { console.error(e); }';
+
+  // ========== 首页批量加载（单次请求 + 懒加载） ==========
+  pageScript += '  var homeDataLoaded = false;';
+  pageScript += '  function renderFeatured(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("featuredArea").innerHTML = posts.map(function(p) { return renderArticleCard(p); }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("featuredArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无精选内容</p></div>\';';
+  pageScript += '    }';
   pageScript += '  }';
-  pageScript += '  async function loadLatest() {';
-  pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?limit=6");';
-  pageScript += '      const data = await res.json();';
-  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
-  pageScript += '        document.getElementById("latestArea").innerHTML = data.data.posts.map(p => renderArticleCard(p)).join("");';
-  pageScript += '      } else {';
-  pageScript += '        document.getElementById("latestArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无内容</p></div>\';';
-  pageScript += '      }';
-  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  function renderLatest(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("latestArea").innerHTML = posts.map(function(p) { return renderArticleCard(p); }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("latestArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无内容</p></div>\';';
+  pageScript += '    }';
   pageScript += '  }';
-  pageScript += '  async function loadHotForum() {';
-  pageScript += '    try {';
-  pageScript += '      const res = await fetch("/api/posts?type=forum&sort=comments&limit=8");';
-  pageScript += '      const data = await res.json();';
-  pageScript += '      if (data.code === 200 && data.data.posts.length > 0) {';
-  pageScript += '        document.getElementById("hotForumArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");';
-  pageScript += '      } else {';
-  pageScript += '        document.getElementById("hotForumArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无讨论</p></div>\';';
-  pageScript += '      }';
-  pageScript += '    } catch(e) { console.error(e); }';
+  pageScript += '  function renderHotForum(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("hotForumArea").innerHTML = posts.map(function(p) { return renderPostItem(p); }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("hotForumArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无讨论</p></div>\';';
+  pageScript += '    }';
   pageScript += '  }';
-pageScript += `  async function loadWeeklyHot() {`;
-pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?type=forum&sort=weekly_views&limit=6");`;
-pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
-pageScript += `        document.getElementById("weeklyHotArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");`;
-pageScript += '        document.getElementById("weeklyHotList").innerHTML = data.data.posts.slice(0,8).map((p,i) => \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></span></div>\').join("");';
-pageScript += `      } else {`;
-pageScript += '        document.getElementById("weeklyHotArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热帖</p></div>\';';
-pageScript += `        document.getElementById("weeklyHotList").innerHTML = "";`;
-pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); }`;
-pageScript += `  }`;
-
-pageScript += `  async function loadCityPosts() {`;
-pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?type=forum&sort=city_latest&city=" + (localStorage.getItem("userCity") || "") + "&limit=4");`;
-pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
-pageScript += `        document.getElementById("cityArea").innerHTML = data.data.posts.map(p => renderPostItem(p)).join("");`;
-pageScript += `      } else {`;
-pageScript += '        document.getElementById("cityArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无同城动态</p></div>\';';
-pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); }`;
-pageScript += `  }`;
-
-pageScript += `  async function loadShowPet() {`;
-pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?category=daily-show&limit=4");`;
-pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
-pageScript += `        document.getElementById("showPetArea").innerHTML = data.data.posts.map(function(p){`;
-pageScript += '          return \'<div class="card"><a href="/post/\' + (p.slug || p.id) + \'"><div style="height:160px;overflow:hidden;border-radius:8px;background:linear-gradient(135deg,var(--bg2),#f5ebe0);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:3rem;">📸</div></a><div class="card-body"><div class="card-title"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></div><div class="card-meta"><span>\' + formatDate(p.created_at) + \'</span></div></div></div>\';';
-pageScript += `        }).join("");`;
-pageScript += `      } else {`;
-pageScript += '        document.getElementById("showPetArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📸</div><p>暂无晒图</p></div>\';';
-pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); }`;
-pageScript += `  }`;
-
-pageScript += `  async function loadNewcomers() {`;
-pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?limit=20");`;
-pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200 && data.data.posts.length > 0) {`;
-pageScript += `        const seen = new Set();`;
-pageScript += `        const users = [];`;
-pageScript += `        data.data.posts.forEach(p => {`;
-pageScript += `          if (p.user_id && !seen.has(p.user_id)) {`;
-pageScript += `            seen.add(p.user_id);`;
-pageScript += `            users.push({ username: p.username, created_at: p.created_at });`;
-pageScript += `          }`;
-pageScript += `        });`;
-pageScript += `        if (users.length > 0) {`;
-pageScript += '          document.getElementById("newcomerZone").innerHTML = users.slice(0,6).map(u => \'<div style="text-align:center;padding:16px;background:var(--bg2);border-radius:8px;"><div style="font-size:2rem;">🐱</div><div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-top:6px;">\' + escapeHtml(u.username || \'匿名铲屎官\') + \'</div><div style="font-size:0.75rem;color:var(--muted);">\' + (u.created_at ? formatDate(u.created_at) : \'刚刚加入\') + \'</div></div>\').join("");';
-pageScript += `        } else {`;
-pageScript += '          document.getElementById("newcomerZone").innerHTML = \'<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\';';
-pageScript += `        }`;
-pageScript += `      } else {`;
-pageScript += '        document.getElementById("newcomerZone").innerHTML = \'<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\';';
-pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); document.getElementById("newcomerZone").innerHTML = '<div class="empty-state"><div class="empty-icon">👋</div><p>加载失败，请刷新</p></div>'; }`;
-pageScript += `  }`;
-
-pageScript += `  async function loadRealtimeStats() {`;
-pageScript += `    try {`;
-pageScript += `      const res = await fetch("/api/posts?limit=1");`;
-pageScript += `      const data = await res.json();`;
-pageScript += `      if (data.code === 200) {`;
-pageScript += `        const total = data.data.total || 0;`;
-pageScript += `        document.getElementById("statUsers").textContent = (total + 1280).toLocaleString();`;
-pageScript += `        document.getElementById("statPosts").textContent = total.toLocaleString();`;
-pageScript += `        document.getElementById("statProfiles").textContent = Math.floor(total * 0.6).toLocaleString();`;
-pageScript += `        document.getElementById("statViews").textContent = (total * 47 + 52000).toLocaleString();`;
-pageScript += `        const todayPosts = data.data.posts.filter(p => { const d = new Date(p.created_at); const t = new Date(); return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth() && d.getDate() === t.getDate(); }).length;`;
-pageScript += `        document.getElementById("statNewPosts").textContent = todayPosts;`;
-pageScript += `        document.getElementById("statOnline").textContent = Math.floor(Math.random() * 60 + 30);`;
-pageScript += `        document.getElementById("statPending").textContent = Math.floor(Math.random() * 8 + 2);`;
-pageScript += `      }`;
-pageScript += `    } catch(e) { console.error(e); }`;
-pageScript += `  }`;
-
-  pageScript += '  loadFeatured();';
-  pageScript += '  loadLatest();';
-  pageScript += '  loadHotForum();';
-pageScript += `  loadWeeklyHot();`;
-pageScript += `  loadCityPosts();`;
-pageScript += `  loadShowPet();`;
-pageScript += `  loadNewcomers();`;
-pageScript += `  loadRealtimeStats();`;
+  pageScript += '  function renderWeeklyHot(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("weeklyHotArea").innerHTML = posts.map(function(p) { return renderPostItem(p); }).join("");';
+  pageScript += '      document.getElementById("weeklyHotList").innerHTML = posts.slice(0,8).map(function(p,i) { return \'<div class="hot-list-item"><span class="rank">\' + (i+1) + \'</span><span class="text"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></span></div>\'; }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("weeklyHotArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无热帖</p></div>\';';
+  pageScript += '      document.getElementById("weeklyHotList").innerHTML = "";';
+  pageScript += '    }';
+  pageScript += '  }';
+  pageScript += '  function renderCityPosts(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("cityArea").innerHTML = posts.map(function(p) { return renderPostItem(p); }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("cityArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📭</div><p>暂无同城动态</p></div>\';';
+  pageScript += '    }';
+  pageScript += '  }';
+  pageScript += '  function renderShowPet(posts) {';
+  pageScript += '    if (posts && posts.length > 0) {';
+  pageScript += '      document.getElementById("showPetArea").innerHTML = posts.map(function(p){';
+  pageScript += '        return \'<div class="card"><a href="/post/\' + (p.slug || p.id) + \'"><div style="height:160px;overflow:hidden;border-radius:8px;background:linear-gradient(135deg,var(--bg2),#f5ebe0);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:3rem;">📸</div></a><div class="card-body"><div class="card-title"><a href="/post/\' + (p.slug || p.id) + \'">\' + escapeHtml(p.title) + \'</a></div><div class="card-meta"><span>\' + formatDate(p.created_at) + \'</span></div></div></div>\';';
+  pageScript += '      }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("showPetArea").innerHTML = \'<div class="empty-state"><div class="empty-icon">📸</div><p>暂无晒图</p></div>\';';
+  pageScript += '    }';
+  pageScript += '  }';
+  pageScript += '  function renderNewcomers(users) {';
+  pageScript += '    if (users && users.length > 0) {';
+  pageScript += '      document.getElementById("newcomerZone").innerHTML = users.map(function(u) { return \'<div style="text-align:center;padding:16px;background:var(--bg2);border-radius:8px;"><div style="font-size:2rem;">🐱</div><div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-top:6px;">\' + escapeHtml(u.username || \'匿名铲屎官\') + \'</div><div style="font-size:0.75rem;color:var(--muted);">\' + (u.created_at ? formatDate(u.created_at) : \'刚刚加入\') + \'</div></div>\'; }).join("");';
+  pageScript += '    } else {';
+  pageScript += '      document.getElementById("newcomerZone").innerHTML = \'<div class="empty-state"><div class="empty-icon">👋</div><p>暂无新用户</p></div>\';';
+  pageScript += '    }';
+  pageScript += '  }';
+  pageScript += '  function renderStats(stats) {';
+  pageScript += '    var total = stats.total || 0;';
+  pageScript += '    document.getElementById("statUsers").textContent = (total + 1280).toLocaleString();';
+  pageScript += '    document.getElementById("statPosts").textContent = total.toLocaleString();';
+  pageScript += '    document.getElementById("statProfiles").textContent = Math.floor(total * 0.6).toLocaleString();';
+  pageScript += '    document.getElementById("statViews").textContent = (total * 47 + 52000).toLocaleString();';
+  pageScript += '    document.getElementById("statNewPosts").textContent = stats.todayPosts || 0;';
+  pageScript += '    document.getElementById("statOnline").textContent = Math.floor(Math.random() * 60 + 30);';
+  pageScript += '    document.getElementById("statPending").textContent = Math.floor(Math.random() * 8 + 2);';
+  pageScript += '  }';
+  pageScript += '  function renderBelowFold(d) {';
+  pageScript += '    renderHotForum(d.hotForum);';
+  pageScript += '    renderWeeklyHot(d.weeklyHot);';
+  pageScript += '    renderCityPosts(d.cityPosts);';
+  pageScript += '    renderShowPet(d.showPet);';
+  pageScript += '    renderNewcomers(d.newcomers);';
+  pageScript += '    renderStats(d.stats);';
+  pageScript += '  }';
+  pageScript += '  async function loadHomeData() {';
+  pageScript += '    if (homeDataLoaded) return;';
+  pageScript += '    homeDataLoaded = true;';
+  pageScript += '    try {';
+  pageScript += '      var userCity = (typeof localStorage !== "undefined" && localStorage.getItem("userCity")) || "";';
+  pageScript += '      var res = await fetch("/api/posts/home/batch?city=" + encodeURIComponent(userCity));';
+  pageScript += '      var data = await res.json();';
+  pageScript += '      if (data.code === 200) {';
+  pageScript += '        var d = data.data;';
+  pageScript += '        renderFeatured(d.featured);';
+  pageScript += '        renderLatest(d.latest);';
+  pageScript += '        renderWeeklyHot(d.weeklyHot);';
+  pageScript += '        renderStats(d.stats);';
+  pageScript += '        if (typeof IntersectionObserver !== "undefined") {';
+  pageScript += '          var lazySections = ["hotForumArea","cityArea","showPetArea","newcomerZone"];';
+  pageScript += '          var rendered = {};';
+  pageScript += '          var observer = new IntersectionObserver(function(entries) {';
+  pageScript += '            entries.forEach(function(entry) {';
+  pageScript += '              if (entry.isIntersecting && !rendered[entry.target.id]) {';
+  pageScript += '                rendered[entry.target.id] = true;';
+  pageScript += '                if (entry.target.id === "hotForumArea") renderHotForum(d.hotForum);';
+  pageScript += '                if (entry.target.id === "cityArea") renderCityPosts(d.cityPosts);';
+  pageScript += '                if (entry.target.id === "showPetArea") renderShowPet(d.showPet);';
+  pageScript += '                if (entry.target.id === "newcomerZone") renderNewcomers(d.newcomers);';
+  pageScript += '                observer.unobserve(entry.target);';
+  pageScript += '              }';
+  pageScript += '            });';
+  pageScript += '          }, { rootMargin: "200px" });';
+  pageScript += '          lazySections.forEach(function(id) {';
+  pageScript += '            var el = document.getElementById(id);';
+  pageScript += '            if (el) observer.observe(el);';
+  pageScript += '          });';
+  pageScript += '        } else {';
+  pageScript += '          renderHotForum(d.hotForum);';
+  pageScript += '          renderCityPosts(d.cityPosts);';
+  pageScript += '          renderShowPet(d.showPet);';
+  pageScript += '          renderNewcomers(d.newcomers);';
+  pageScript += '        }';
+  pageScript += '      }';
+  pageScript += '    } catch(e) { console.error("Home batch error:", e); }';
+  pageScript += '  }';
+  pageScript += '  loadHomeData();';
 
   pageScript += '})();';
   pageScript += '</script>';

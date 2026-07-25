@@ -6,6 +6,105 @@ const { isBotRequest } = require('../../shared/utils/botFilter');
 
 const router = express.Router();
 
+// 首页批量接口 - 一次请求返回所有首页数据
+router.get('/home/batch', async (req, res) => {
+  try {
+    const baseWhere = 'p.status = "published" AND (p.review_status = "approved" OR p.review_status IS NULL)';
+    const imageSubquery = "(SELECT GROUP_CONCAT(pm.media_url ORDER BY pm.sort_order) FROM post_media pm WHERE pm.post_id = p.id AND pm.media_type = 'image') AS images";
+
+    // 并行执行所有查询
+    const [featured, latest, hotForum, weeklyHot, showPet, totalResult, newcomerPosts] = await Promise.all([
+      // 精选推荐 (按点赞)
+      query(
+        `SELECT p.id, p.title, p.slug, p.user_id, u.username, u.avatar, p.content, p.created_at, p.view_count, p.like_count, p.comment_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere} AND p.post_type = 'forum'
+         ORDER BY p.like_count DESC, p.created_at DESC LIMIT 2`,
+        []
+      ),
+      // 最新内容
+      query(
+        `SELECT p.id, p.title, p.slug, p.user_id, u.username, u.avatar, p.content, p.created_at, p.view_count, p.like_count, p.comment_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere}
+         ORDER BY p.created_at DESC LIMIT 6`,
+        []
+      ),
+      // 热门讨论 (按评论)
+      query(
+        `SELECT p.id, p.title, p.slug, u.username, u.avatar, p.content, p.created_at, p.view_count, p.comment_count, p.like_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere} AND p.post_type = 'forum'
+         ORDER BY p.comment_count DESC, p.created_at DESC LIMIT 8`,
+        []
+      ),
+      // 本周热帖
+      query(
+        `SELECT p.id, p.title, p.slug, u.username, u.avatar, p.content, p.created_at, p.view_count, p.comment_count, p.like_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere} AND p.post_type = 'forum'
+         ORDER BY p.weekly_views DESC, p.created_at DESC LIMIT 6`,
+        []
+      ),
+      // 萌宠晒图
+      query(
+        `SELECT p.id, p.title, p.slug, u.username, u.avatar, p.content, p.created_at, p.view_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere} AND p.category = 'daily-show'
+         ORDER BY p.created_at DESC LIMIT 4`,
+        []
+      ),
+      // 总数统计
+      queryOne(`SELECT COUNT(*) as total FROM posts p WHERE ${baseWhere}`, []),
+      // 新人报到 (取最近6个不同用户)
+      query(
+        `SELECT DISTINCT p.user_id, u.username, p.created_at
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere}
+         ORDER BY p.created_at DESC LIMIT 6`,
+        []
+      )
+    ]);
+
+    // 同城动态 (依赖用户城市，单独查询)
+    let cityPosts = [];
+    const userCity = req.query.city || '';
+    if (userCity) {
+      cityPosts = await query(
+        `SELECT p.id, p.title, p.slug, u.username, u.avatar, p.content, p.created_at, p.view_count, p.comment_count, p.like_count, ${imageSubquery}
+         FROM posts p JOIN users u ON p.user_id = u.id
+         WHERE ${baseWhere} AND p.post_type = 'forum' AND p.city = ?
+         ORDER BY p.created_at DESC LIMIT 4`,
+        [userCity]
+      );
+    }
+
+    // 今日新帖数
+    const todayResult = await queryOne(
+      `SELECT COUNT(*) as cnt FROM posts p WHERE ${baseWhere} AND DATE(p.created_at) = CURDATE()`,
+      []
+    );
+
+    const total = totalResult ? totalResult.total : 0;
+
+    success(res, {
+      featured: featured,
+      latest: latest,
+      hotForum: hotForum,
+      weeklyHot: weeklyHot,
+      cityPosts: cityPosts,
+      showPet: showPet,
+      newcomers: newcomerPosts,
+      stats: {
+        total: total,
+        todayPosts: todayResult ? todayResult.cnt : 0
+      }
+    });
+  } catch (err) {
+    return error(res, 500, err.message);
+  }
+});
+
 // 获取帖子列表
 router.get('/', optionalAuth, async (req, res) => {
   try {

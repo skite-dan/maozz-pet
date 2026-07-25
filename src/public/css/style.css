@@ -761,6 +761,9 @@
 
     /* ========== Ad Banner ========== */
     .ad-banner {
+      margin-bottom: 30px;
+    }
+    .ad-placeholder {
       background: var(--bg2);
       border: 1px dashed var(--rule);
       border-radius: var(--radius);
@@ -768,7 +771,26 @@
       text-align: center;
       color: var(--muted);
       font-size: 0.85rem;
-      margin-bottom: 30px;
+    }
+    .adsterra-social-bar {
+      min-height: 80px;
+    }
+    .adsterra-sidebar-native {
+      min-height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .adsterra-content-native {
+      text-align: center;
+      max-height: 120px;
+      overflow: hidden;
+    }
+    .adsterra-sidebar-160x600 {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      min-height: 200px;
     }
 
     /* ========== Breed Grid ========== */
