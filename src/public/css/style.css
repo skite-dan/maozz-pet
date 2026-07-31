@@ -773,7 +773,10 @@
       font-size: 0.85rem;
     }
     .adsterra-social-bar {
-      min-height: 80px;
+      min-height: 0;
+      margin-bottom: 0;
+      height: 0;
+      overflow: hidden;
     }
     .adsterra-sidebar-native {
       min-height: 260px;
