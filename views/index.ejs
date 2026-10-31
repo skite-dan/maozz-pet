@@ -2,49 +2,7 @@
   // Build body content first
   var body = '';
 
-  // Banner Carousel - Full Width (outside page-layout)
-  body += '<section class="banner-carousel">';
-  if (banners && banners.length > 0) {
-    body += '  <div class="banner-slides">';
-    for (var i = 0; i < banners.length; i++) {
-      var banner = banners[i];
-      var slideClass = i === 0 ? 'banner-slide active' : 'banner-slide';
-      var linkStart = banner.link_url ? '<a href="' + banner.link_url + '" class="banner-link">' : '<div class="banner-link">';
-      var linkEnd = banner.link_url ? '</a>' : '</div>';
-      body += '    <div class="' + slideClass + '" data-index="' + i + '">';
-      body += '      ' + linkStart;
-      body += '        <img src="' + banner.image_url + '" alt="' + (banner.title || '') + '" loading="lazy">';
-      body += '        ' + (banner.title ? '<div class="banner-title">' + banner.title + '</div>' : '');
-      body += '      ' + linkEnd;
-      body += '    </div>';
-    }
-    body += '  </div>';
-    if (banners.length > 1) {
-      body += '  <div class="banner-dots">';
-      for (var d = 0; d < banners.length; d++) {
-        body += '    <button class="banner-dot' + (d === 0 ? ' active' : '') + '" data-index="' + d + '"></button>';
-      }
-      body += '  </div>';
-      body += '  <button class="banner-arrow banner-prev" aria-label="上一张">&#x276E;</button>';
-      body += '  <button class="banner-arrow banner-next" aria-label="下一张">&#x276F;</button>';
-    }
-  } else {
-    // Default hero when no banners
-    body += '  <div class="hero-fallback">';
-    body += '    <h1>&#x1F43E; 欢迎来到毛茸茸星球</h1>';
-    body += '    <p>专为铲屎官打造的宠物社区，分享养宠攻略、交流萌宠日常</p>';
-    body += '    <div class="hero-tags">';
-    body += '      <a href="/search?keyword=猫咪" class="tag">&#x1F431; 猫咪</a>';
-    body += '      <a href="/search?keyword=狗狗" class="tag">&#x1F436; 狗狗</a>';
-    body += '      <a href="/search?keyword=兔子" class="tag">&#x1F430; 兔子</a>';
-    body += '      <a href="/search?keyword=仓鼠" class="tag">&#x1F439; 仓鼠</a>';
-    body += '      <a href="/search?keyword=鸟类" class="tag">&#x1F426; 鸟类</a>';
-    body += '      <a href="/search?keyword=养宠攻略" class="tag">&#x1F4D6; 养宠攻略</a>';
-    body += '    </div>';
-    body += '  </div>';
-  }
-  body += '</section>';
-
+  // Banner Carousel 已隐藏（2026-10-31 需求：首页不再展示轮播图，内容整体上移）
 
   body += '<div class="page-layout">';
   body += '  <div class="content-area">';
