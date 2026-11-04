@@ -7,10 +7,7 @@
   body += '<div class="page-layout">';
   body += '  <div class="content-area">';
 
-  // Ad - Social Bar
-  body += '    <div class="ad-banner adsterra-social-bar">';
-  body += '      <script async src="https://pl30527772.effectivecpmnetwork.com/b9/95/51/b99551cfbbf3ac0bce8c8a355d778987.js"><\/script>';
-  body += '    </div>';
+  // Ad - Social Bar 已移至 layout.ejs（全站每页一份，2026-11-03）
 
   // Hot Pets TOP6
   body += '    <section>';
@@ -137,6 +134,16 @@ body += `    </section>`;
   body += '      <iframe style="width:300px;height:250px;border:none;max-width:100%;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\': \'iframe\', \'height\': 250, \'width\': 300, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js\'><\/script>"></iframe>';
   body += '    </div>';
 
+  // Ad - Banner 160x300 (300x250 下方) - iframe隔离避免atOptions全局变量冲突
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
+  // Ad - Banner 160x600 (300x250 下方) - iframe隔离避免atOptions全局变量冲突
+  body += '    <div class="widget adsterra-sidebar-160x600">';
+  body += '      <iframe style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
+  body += '    </div>';
+
   // Weekly Hot
   body += '    <div class="widget">';
   body += '      <h3 class="widget-title">&#x1F4CA; 本周热帖</h3>';
@@ -186,16 +193,6 @@ body += `    </div>`;
   body += '      <h3 class="widget-title">&#x1F3E0; 关于本站</h3>';
   body += '      <p style="font-size:0.88rem;color:var(--muted);line-height:1.7;">毛茸茸星球是一个专为铲屎官打造的宠物社区，在这里你可以分享养宠经验、交流萌宠日常、学习养宠知识。</p>';
   body += '      <a href="/about" class="btn btn-outline btn-sm" style="margin-top:12px;">了解更多</a>';
-  body += '    </div>';
-
-  // Ad - Banner 160x300 (关于本站下方、160x600上方) - iframe隔离避免atOptions全局变量冲突
-  body += '    <div class="widget adsterra-sidebar-160x600">';
-  body += '      <iframe style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
-  body += '    </div>';
-
-  // Ad - Banner 160x600 (关于本站下方) - iframe隔离避免atOptions全局变量冲突
-  body += '    <div class="widget adsterra-sidebar-160x600">';
-  body += '      <iframe style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
   body += '    </div>';
 
   body += '  </aside>';
