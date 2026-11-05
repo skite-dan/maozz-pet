@@ -129,9 +129,10 @@ body += `    </section>`;
   // Sidebar
   body += '  <aside class="sidebar">';
 
-  // Ad - Banner 300x250 (本周热帖上方) - iframe隔离避免atOptions全局变量冲突
+  // Ad - Banner 300x250 (本周热帖上方) - 直接插入（A/B 测试：对比 srcdoc iframe 的曝光统计）
   body += '    <div class="widget adsterra-sidebar-native">';
-  body += '      <iframe style="width:300px;height:250px;border:none;max-width:100%;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\': \'iframe\', \'height\': 250, \'width\': 300, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js\'><\/script>"></iframe>';
+  body += '      <script type="text/javascript">atOptions = { \'key\' : \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\' : \'iframe\', \'height\' : 250, \'width\' : 300, \'params\' : {} };<\/script>';
+  body += '      <script type="text/javascript" src="https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js"><\/script>';
   body += '    </div>';
 
   // Ad - Banner 160x300 (300x250 下方) - iframe隔离避免atOptions全局变量冲突
