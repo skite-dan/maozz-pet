@@ -10,6 +10,9 @@ const { recordVisit } = require('../shared/services/visitTracker');
 
 const app = express();
 
+// 信任反向代理（Nginx → Docker），让 req.ip 从 X-Forwarded-For 取真实客户端 IP
+app.set('trust proxy', true);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(cors({
@@ -21,9 +24,13 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// 限流：15min / 1000次 / 真实IP，静态资源不计入
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => /\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$/i.test(req.path),
   message: { code: 429, message: '请求过于频繁，请稍后再试' },
 }));
 
