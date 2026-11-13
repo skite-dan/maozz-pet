@@ -3,12 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Monetag In-Page Push (暂时隐藏，代码保留)
+  <!-- Monetag In-Page Push (暂时隐藏，代码保留)-->
   <script>(function(s){s.dataset.zone="11313030",s.src="https://nap5k.com/tag.min.js"})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement("script")))</script>
-  -->
+  
   <!-- Monetag Vignette Banner (暂时隐藏，代码保留)
   <script>(function(s){s.dataset.zone="11313003",s.src="https://n6wxm.com/vignette.min.js"})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement("script")))</script>
   -->
+
+  <!-- Adsterra Popunder（暂时停用，恢复时去掉下面注释标记） -->
+  <!--
+  <script data-cfasync="false" src="https://afders.org/1/ba2f0ec40e800445aa3538bc4cfab2dd"></script>
+  -->
+   <!-- Adsterra Social Bar（全站每页一份） -->
+  <!--   注释掉Social Bar，看是否影响了全屏弹窗广告
+  <script async src="https://pl30527772.effectivecpmnetwork.com/b9/95/51/b99551cfbbf3ac0bce8c8a355d778987.js"></script>
+   -->
   <title><%= typeof title !== 'undefined' ? title : '毛茸茸星球-专业铲屎官宠物交流论坛 | 养猫养狗饲养问诊同城领养' %></title>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
@@ -71,10 +80,7 @@
   <script type="application/ld+json"><%- structuredData %></script>
   <% } %>
     <link rel="stylesheet" href="/css/style.css">
-  <%# Adsterra Popunder（暂时停用，恢复时去掉下面注释标记） %>
-  <!--
-  <script data-cfasync="false" src="https://afders.org/1/ba2f0ec40e800445aa3538bc4cfab2dd"></script>
-  -->
+  
 </head>
 <body class="<%= typeof bodyClass !== 'undefined' ? bodyClass : '' %>">
 
@@ -1166,7 +1172,6 @@
     }
   })();
   </script>
-  <!-- Adsterra Social Bar（全站每页一份） -->
-  <script async src="https://pl30527772.effectivecpmnetwork.com/b9/95/51/b99551cfbbf3ac0bce8c8a355d778987.js"></script>
-</body>
+ 
+  </body>
 </html>
