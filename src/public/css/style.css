@@ -786,8 +786,6 @@
     }
     .adsterra-content-native {
       text-align: center;
-      max-height: 120px;
-      overflow: hidden;
     }
     .adsterra-sidebar-160x600 {
       display: flex;

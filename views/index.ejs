@@ -50,11 +50,10 @@
   body += '      </div>';
   body += '    </section>';
 
-  // Ad - Content Native Banner (已隐藏)
-  // body += '    <div class="adsterra-content-native" style="margin-bottom:30px;">';
-  // body += '      <script async="async" data-cfasync="false" src="https://pl30527773.effectivecpmnetwork.com/4611999d12ebb8ad0ab788ada25367f0/invoke.js"><\/script>';
-  // body += '      <div id="container-4611999d12ebb8ad0ab788ada25367f0"></div>';
-  // body += '    </div>';
+  // Ad - Content Native Banner (srcdoc iframe 隔离 + sandbox，防止广告脚本操作主页面)
+  body += '    <div class="adsterra-content-native" style="margin-bottom:30px;">';
+  body += '      <iframe id="nativeAdFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:100%;max-width:728px;height:250px;border:none;overflow:hidden;" srcdoc="<style>*{box-sizing:border-box;}html,body{margin:0;padding:0;overflow:hidden;}</style><script async=\'async\' data-cfasync=\'false\' src=\'https://bicea.org/21/4611999d12ebb8ad0ab788ada25367f0\'><\/script><div id=\'container-4611999d12ebb8ad0ab788ada25367f0\'></div><script>(function(){function post(){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');var h=Math.ceil(Math.max(c?c.scrollHeight:0,c?c.offsetHeight:0,document.body.scrollHeight));if(h>0){try{parent.postMessage({type:\'adsterra-native-height\',height:h},\'*\');}catch(e){}}}window.addEventListener(\'load\',post);if(typeof ResizeObserver!==\'undefined\'){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');if(c){new ResizeObserver(post).observe(c);}}var n=0,t=setInterval(function(){post();n++;if(n>=20){clearInterval(t);}},500);post();})();<\/script>"></iframe>';
+  body += '    </div>';
 
   // Latest Content
   body += '    <section>';
@@ -129,20 +128,19 @@ body += `    </section>`;
   // Sidebar
   body += '  <aside class="sidebar">';
 
-  // Ad - Banner 300x250 (侧栏最顶部，本周热帖上方) - 直接插入（A/B 测试：对比 srcdoc iframe 的曝光统计）
+  // Ad - Banner 300x250 (侧栏最顶部，本周热帖上方) - srcdoc iframe 隔离 + sandbox，防止广告脚本操作主页面
   body += '    <div class="widget adsterra-sidebar-native">';
-  body += '      <script type="text/javascript">atOptions = { \'key\' : \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\' : \'iframe\', \'height\' : 250, \'width\' : 300, \'params\' : {} };<\/script>';
-  body += '      <script type="text/javascript" src="https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js"><\/script>';
+  body += '      <iframe sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:300px;height:250px;border:none;max-width:100%;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'8b5c215ccb5f7cbdf754286a463eb8de\', \'format\': \'iframe\', \'height\': 250, \'width\': 300, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/8b5c215ccb5f7cbdf754286a463eb8de/invoke.js\'><\/script>"></iframe>';
   body += '    </div>';
 
   // Ad - Banner 160x300 (300x250 下方) - iframe隔离避免atOptions全局变量冲突
   body += '    <div class="widget adsterra-sidebar-160x600">';
-  body += '      <iframe style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
+  body += '      <iframe sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:160px;height:300px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'d881da05d7de3b6a8977075debc77833\', \'format\': \'iframe\', \'height\': 300, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/d881da05d7de3b6a8977075debc77833/invoke.js\'><\/script>"></iframe>';
   body += '    </div>';
 
   // Ad - Banner 160x600 (300x250 下方) - iframe隔离避免atOptions全局变量冲突
   body += '    <div class="widget adsterra-sidebar-160x600">';
-  body += '      <iframe style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
+  body += '      <iframe sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:160px;height:600px;border:none;overflow:hidden;" srcdoc="<style>*{overflow:hidden!important;}html,body{margin:0;padding:0;overflow:hidden!important;}</style><script>atOptions = { \'key\': \'7591011e42d3a7e8833cb1143b7ba2da\', \'format\': \'iframe\', \'height\': 600, \'width\': 160, \'params\': {} };<\/script><script src=\'https://www.highperformanceformat.com/7591011e42d3a7e8833cb1143b7ba2da/invoke.js\'><\/script>"></iframe>';
   body += '    </div>';
 
   // Weekly Hot
@@ -349,6 +347,17 @@ body += `    </div>`;
   pageScript += '    } catch(e) { console.error("Home batch error:", e); }';
   pageScript += '  }';
   pageScript += '  loadHomeData();';
+
+  // 内容原生广告 iframe 高度自适应
+  pageScript += '  var nativeAdFrame = document.getElementById("nativeAdFrame");';
+  pageScript += '  if (nativeAdFrame) {';
+  pageScript += '    window.addEventListener("message", function(e) {';
+  pageScript += '      if (e.source !== nativeAdFrame.contentWindow) return;';
+  pageScript += '      if (!e.data || e.data.type !== "adsterra-native-height") return;';
+  pageScript += '      var h = parseInt(e.data.height, 10);';
+  pageScript += '      if (h > 0 && h < 1200) nativeAdFrame.style.height = h + "px";';
+  pageScript += '    });';
+  pageScript += '  }';
 
   pageScript += '})();';
   pageScript += '</script>';
