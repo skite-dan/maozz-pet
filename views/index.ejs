@@ -30,6 +30,13 @@
   body += '      </div>';
   body += '    </section>';
 
+
+  // Ad - Content Native Banner (srcdoc iframe 隔离 + sandbox，防止广告脚本操作主页面)
+  body += '    <div class="adsterra-content-native" style="margin-bottom:30px;">';
+  body += '      <iframe id="nativeAdFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:100%;max-width:728px;height:250px;border:none;overflow:hidden;" srcdoc="<style>*{box-sizing:border-box;}html,body{margin:0;padding:0;overflow:hidden;}</style><script async=\'async\' data-cfasync=\'false\' src=\'https://bicea.org/21/4611999d12ebb8ad0ab788ada25367f0\'><\/script><div id=\'container-4611999d12ebb8ad0ab788ada25367f0\'></div><script>(function(){function post(){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');var h=Math.ceil(Math.max(c?c.scrollHeight:0,c?c.offsetHeight:0,document.body.scrollHeight));if(h>0){try{parent.postMessage({type:\'adsterra-native-height\',height:h},\'*\');}catch(e){}}}window.addEventListener(\'load\',post);if(typeof ResizeObserver!==\'undefined\'){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');if(c){new ResizeObserver(post).observe(c);}}var n=0,t=setInterval(function(){post();n++;if(n>=20){clearInterval(t);}},500);post();})();<\/script>"></iframe>';
+  body += '    </div>';
+
+
   // Featured
   body += '    <section>';
   body += '      <h2 class="section-title"><span class="icon">&#x2B50;</span> 精选推荐 <a href="/forum?sort=likes" class="more">查看更多 →</a></h2>';
@@ -50,10 +57,6 @@
   body += '      </div>';
   body += '    </section>';
 
-  // Ad - Content Native Banner (srcdoc iframe 隔离 + sandbox，防止广告脚本操作主页面)
-  body += '    <div class="adsterra-content-native" style="margin-bottom:30px;">';
-  body += '      <iframe id="nativeAdFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" style="width:100%;max-width:728px;height:250px;border:none;overflow:hidden;" srcdoc="<style>*{box-sizing:border-box;}html,body{margin:0;padding:0;overflow:hidden;}</style><script async=\'async\' data-cfasync=\'false\' src=\'https://bicea.org/21/4611999d12ebb8ad0ab788ada25367f0\'><\/script><div id=\'container-4611999d12ebb8ad0ab788ada25367f0\'></div><script>(function(){function post(){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');var h=Math.ceil(Math.max(c?c.scrollHeight:0,c?c.offsetHeight:0,document.body.scrollHeight));if(h>0){try{parent.postMessage({type:\'adsterra-native-height\',height:h},\'*\');}catch(e){}}}window.addEventListener(\'load\',post);if(typeof ResizeObserver!==\'undefined\'){var c=document.getElementById(\'container-4611999d12ebb8ad0ab788ada25367f0\');if(c){new ResizeObserver(post).observe(c);}}var n=0,t=setInterval(function(){post();n++;if(n>=20){clearInterval(t);}},500);post();})();<\/script>"></iframe>';
-  body += '    </div>';
 
   // Latest Content
   body += '    <section>';
